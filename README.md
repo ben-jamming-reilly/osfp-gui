@@ -38,6 +38,6 @@ You can verify that our OSPF implementation works properly by running the test s
   $ cd build/
   $ make
   ```
-Once those commands have finished, the stand-alone executable called ```ospf_test.out``` will be in the ```routing``` parent directory and can be run to verify proper functionality. The OSPF routing protocol functions can ```ospf.cpp``` and the test functions can be found in ```ospf_test.cpp```.
+Once those commands have finished, the stand-alone executable called ```ospf_test.out``` will be in the ```routing``` parent directory and can be run to verify proper functionality. The OSPF routing protocol functions are in ```ospf.cpp``` and the test functions can be found in ```ospf_test.cpp```.
 
 To recompile the test suite after making changes, navigate to the ```build/``` directory and run ```make``` once again.
