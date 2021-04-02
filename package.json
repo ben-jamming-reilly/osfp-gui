@@ -10,10 +10,26 @@
     "type": "git",
     "url": "git+https://github.com/ben-jamming-reilly/osfp-gui.git"
   },
-  "author": "Benjamin Reilly",
+  "author": "Benjamin Reilly, Nick Smith, Tristan Call",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/ben-jamming-reilly/osfp-gui/issues"
   },
-  "homepage": "https://github.com/ben-jamming-reilly/osfp-gui#readme"
+  "homepage": "https://github.com/ben-jamming-reilly/osfp-gui#readme",
+  "dependencies": {
+    "electron": "^12.0.2",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.13.14",
+    "@babel/preset-env": "^7.13.12",
+    "@babel/preset-react": "^7.13.13",
+    "babel-loader": "^8.2.2",
+    "css-loader": "^5.2.0",
+    "electron-reload": "^1.5.0",
+    "style-loader": "^2.0.0",
+    "webpack": "^5.30.0",
+    "webpack-cli": "^4.6.0"
+  }
 }
