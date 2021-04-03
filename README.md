@@ -26,7 +26,7 @@
 
 ### C++ Testing Environment
 
-This project uses [GTest](https://github.com/google/googletest.git) as a testing framework and CMake as a build tool. For those that are unfamiliar with these tools, you can check out a quick start guide [here.](https://google.github.io/googletest/quickstart-cmake.html) **NOTE**: You must have CMake installed to test the routing algorithms.
+This project uses [GTest](https://github.com/google/googletest.git) as a testing framework and CMake as a build tool. For those that are unfamiliar with these tools, you can check out a quick start guide [here.](https://google.github.io/googletest/quickstart-cmake.html) **NOTE**: You must have at least CMake v3.14 installed to test the routing algorithms.
 
 You can verify that our OSPF implementation works properly by running the test suite yourself. After cloning this repo, run CMake to configure the build environment:
 
