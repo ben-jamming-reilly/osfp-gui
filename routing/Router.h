@@ -1,3 +1,7 @@
+/*
+
+*/
+
 #include <iostream>
 #include <vector>
 
@@ -5,10 +9,10 @@
 class Router {
     public:
         Router(int routerID) {
-            this.routerID = routerID;
+            this->routerID = routerID;
         }
         int getID() {
-            return this.routerID;
+            return this->routerID;
         }
 
         void lsac() {}
@@ -19,17 +23,17 @@ class Router {
          * */
         void populate_least_cost_destination() {
             int inf = 65535;
-            std::vector<(int, int, unsigned int)> lcd;
-            /*
-            for(i = 0; i < this.routerLSA.size(); i++) {
-                // For each destination
+            // std::vector<(int, int, unsigned int)> lcd;
+            // /*
+            // for(i = 0; i < this.routerLSA.size(); i++) {
+            //     // For each destination
                 
-                int id = router.getID();
-                package = (id, this.routerID, inf);
-                lcd.append(package)
-            }
-            */
-            this.least_cost_destination = lcd;
+            //     int id = router.getID();
+            //     package = (id, this.routerID, inf);
+            //     lcd.append(package)
+            // }
+            // */
+            // this.least_cost_destination = lcd;
 
         }
     
@@ -45,15 +49,15 @@ class Router {
          * This generates the forwarding table and returns it in the
          * form of [(destination router, current router, next node)]
          * */
-        [(int, int, unsigned int)] generate_forwarding_table() {}
+        std::tuple<int, int, unsigned int>* generate_forwarding_table() {}
 
     private:
-        std::vector<(Router, int)> neighbors;
+        std::vector<std::pair<Router, int>> neighbors;
         int routerID;
         // routerLSA;
         // networkLSA;
-        std::vector<(int, int, unsigned int)> least_cost_destination;
+        std::vector<std::tuple<int, int, unsigned int>> least_cost_destination;
  
 
 
-}
+};
