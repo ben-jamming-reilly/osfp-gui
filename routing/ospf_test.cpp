@@ -1,5 +1,6 @@
 #include <iostream>
 #include <gtest/gtest.h>
+#include "Router.h"
 
 TEST(InitTest, InitTest)
 {
