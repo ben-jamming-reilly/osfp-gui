@@ -114,6 +114,90 @@ TEST(LSDBTest, AdvertiseDatabase)
 	ASSERT_LT(retVal.at(1).LINK, retVal.at(2).LINK);
 }
 
+TEST(LSDBTest, ClearDatabase)
+{
+	// define some nodes to make debugging easier to read
+	enum node
+	{
+		u = 0,
+		v = 1,
+		w = 2,
+		x = 3
+	};
+
+	RouterLSA lsa1 = { Link(u, v), INIT_SEQ_NUM, 1};
+	RouterLSA lsa2 = { Link(v, w), INIT_SEQ_NUM, 4};
+	RouterLSA lsa3 = { Link(w, u), INIT_SEQ_NUM, 2};
+	LSDB lsdb;
+
+	// clearing an empty database does nothing
+	ASSERT_EQ(lsdb.size(), 0);
+	lsdb.clear();
+	ASSERT_EQ(lsdb.size(), 0);
+
+	// clearing a non-empty database makes it empty again
+	lsdb.add_router_lsa(lsa1);
+	lsdb.add_router_lsa(lsa2);
+	lsdb.add_router_lsa(lsa3);
+	ASSERT_EQ(lsdb.size(), 3);
+	lsdb.clear();
+	ASSERT_EQ(lsdb.size(), 0);
+}
+
+TEST(LSDBTest, UpdateDatabase)
+{
+	// define some nodes to make debugging easier to read
+	enum node
+	{
+		u = 0,
+		v = 1,
+		w = 2,
+		x = 3
+	};
+
+	RouterLSA lsa1 = { Link(u, v), INIT_SEQ_NUM+1, 1};
+	RouterLSA lsa2 = { Link(v, w), INIT_SEQ_NUM+1, 2};
+	RouterLSA lsa3 = { Link(w, u), INIT_SEQ_NUM+1, 3};
+	LSDB advertising_lsdb;
+
+	// construct advertising router LSDB
+	advertising_lsdb.add_router_lsa(lsa1);
+	advertising_lsdb.add_router_lsa(lsa2);
+	advertising_lsdb.add_router_lsa(lsa3);
+
+	// empty database updates with all received links
+	LSDB receiving_lsdb;
+
+	std::vector<RouterLSA> lsa_list = advertising_lsdb.advertise_database();
+	receiving_lsdb.update_database(lsa_list);
+	lsa_list = receiving_lsdb.advertise_database();
+
+	ASSERT_EQ(lsa_list.at(0).LINK_COST, 1);
+	ASSERT_EQ(lsa_list.at(1).LINK_COST, 2);
+	ASSERT_EQ(lsa_list.at(2).LINK_COST, 3);
+
+	advertising_lsdb.clear();
+	lsa_list.clear();
+
+	// database won't overwrite newer LSAs updates with older LSAs
+
+	lsa1 = { Link(u, v), INIT_SEQ_NUM, 1};
+	lsa2 = { Link(v, w), INIT_SEQ_NUM, 2};
+	lsa3 = { Link(w, u), INIT_SEQ_NUM, 3};
+
+	advertising_lsdb.add_router_lsa(lsa1);
+	advertising_lsdb.add_router_lsa(lsa2);	
+	advertising_lsdb.add_router_lsa(lsa3);
+
+	lsa_list = advertising_lsdb.advertise_database();
+	receiving_lsdb.update_database(lsa_list);
+	lsa_list = receiving_lsdb.advertise_database();
+
+	ASSERT_EQ(lsa_list.at(0).SEQ_NUM, INIT_SEQ_NUM+1);
+	ASSERT_EQ(lsa_list.at(1).SEQ_NUM, INIT_SEQ_NUM+1);
+	ASSERT_EQ(lsa_list.at(2).SEQ_NUM, INIT_SEQ_NUM+1);
+}
+
 int main(int argc, char** argv)
 {
 	testing::InitGoogleTest(&argc, argv);

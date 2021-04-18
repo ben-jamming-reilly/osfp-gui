@@ -24,6 +24,16 @@ public:
     // Outputs: Sorted vector list of Link State Advertisements (LSAs).
     std::vector<RouterLSA> advertise_database();
 
+    // Takes advertised Link State Advertisements and updates its database
+    // Inputs: Vector of Link State Advertisements (LSAs)
+    // Outputs: None
+    void update_database(std::vector<RouterLSA> advertised_database);
+
+    // Clears the database of all Link State Advertisements
+    // Inputs: None
+    // Outputs: None
+    void clear();
+
     // Returns the number of Link State Advertisements in the database
     // Inputs: None
     // Outputs: Size of database
@@ -76,6 +86,30 @@ std::vector<RouterLSA> LSDB::advertise_database()
     }
 
     return retVal;
+}
+
+// update database from vector list of LSAs
+void LSDB::update_database(std::vector<RouterLSA> advertised_database)
+{
+    // iterate through database
+    RouterLSA new_lsa;
+
+    for (int i = 0; i < advertised_database.size(); ++i)
+    {
+        new_lsa = advertised_database.at(i);
+
+        if (this->router_lsdb.count(new_lsa.LINK) == 0 ||
+            this->router_lsdb.at(new_lsa.LINK).SEQ_NUM < new_lsa.SEQ_NUM)
+        {
+            // new LSA, update database
+            this->router_lsdb.insert(std::pair<Link, RouterLSA>(new_lsa.LINK, new_lsa));
+        }
+    }
+}
+
+void LSDB::clear()
+{
+    this->router_lsdb.clear();
 }
 
 size_t LSDB::size()
