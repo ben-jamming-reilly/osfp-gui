@@ -39,6 +39,17 @@ public:
     // Outputs: Size of database
     size_t size();
 
+    // Finds all the unique destinations and returns them
+    // Inputs: None
+    // Outputs: all destinations
+    std::vector<int> get_all_destinations();
+
+    
+    // Finds connections with the inputted router and returns them
+    // @param int router
+    // @return vector list of pair (routerID, cost)
+    std::vector<std::pair<int, int>> find_connections_with(int router);
+
 private:
     std::map<Link, RouterLSA> router_lsdb;
 };
@@ -117,4 +128,70 @@ size_t LSDB::size()
     return this->router_lsdb.size();
 }
 
+// Finds all the unique destinations and returns them
+// Inputs: None
+// Outputs: all destinations
+std::vector<int> LSDB::get_all_destinations() {
+    std::vector<int> routers;
+
+    // For every connection
+    for (std::map<Link, RouterLSA>::iterator lsa = this->router_lsdb.begin();
+         lsa != this->router_lsdb.end(); ++lsa)
+    {
+        int dest = lsa->second.LINK.get_dest_id();
+        bool new_dest = true;
+        int src = lsa->second.LINK.get_src_id();
+        bool new_src = true;
+        // Find unique router IDs
+        for(int i = 0; i < routers.size(); i++) {
+            if(dest == routers.at(i)) {
+                new_dest = false;
+            }
+            if(src == routers.at(i)) {
+                new_src = false;
+            }
+        }
+        // Add routers if haven't appeared before
+        if(new_dest == true) {
+            routers.push_back(dest);
+        }
+        if(new_src == true) {
+            routers.push_back(src);
+        }
+    }
+    return routers;
+}
+
+// Finds connections with the inputted router and returns them
+// @param int router
+// @return vector list of pair (routerID, cost)
+std::vector<std::pair<int, int>> LSDB::find_connections_with(int router) {
+    std::vector<std::pair<int, int>> connections;
+    int link;
+    int cost;
+
+    // For every connection
+    for (std::map<Link, RouterLSA>::iterator lsa = this->router_lsdb.begin();
+         lsa != this->router_lsdb.end(); ++lsa)
+    {
+        link = -1;
+        cost = 65535;
+        // See if one of the routers is the given one
+        if(lsa->second.LINK.get_dest_id() == router) {
+            link = lsa->second.LINK.get_src_id();
+            cost = lsa->second.LINK_COST;
+        }
+        else if(lsa->second.LINK.get_src_id()) {
+            link = lsa->second.LINK.get_dest_id();
+            cost = lsa->second.LINK_COST;
+        }
+        // Add to the list if it is
+        if(link != -1) {
+            connections.push_back(std::pair<int, int>(link, cost));
+        }
+    }
+    return connections;
+}
+
 #endif
+

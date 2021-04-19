@@ -1,6 +1,6 @@
 #include <iostream>
 #include <gtest/gtest.h>
-//#include "Router.h"
+#include "Router.h"
 #include "LSDB.h"
 #include "LSA.h"
 
