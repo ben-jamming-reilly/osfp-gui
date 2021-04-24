@@ -1,6 +1,6 @@
 #include <iostream>
 #include <gtest/gtest.h>
-//#include "Router.h"
+#include "Router.h"
 #include "LSDB.h"
 #include "LSA.h"
 
@@ -196,6 +196,13 @@ TEST(LSDBTest, UpdateDatabase)
 	ASSERT_EQ(lsa_list.at(0).SEQ_NUM, INIT_SEQ_NUM+1);
 	ASSERT_EQ(lsa_list.at(1).SEQ_NUM, INIT_SEQ_NUM+1);
 	ASSERT_EQ(lsa_list.at(2).SEQ_NUM, INIT_SEQ_NUM+1);
+}
+
+TEST(RouterTest, RouterID)
+{
+	// initialize Router
+	Router router(99);
+	ASSERT_EQ(router.getID(), 99);
 }
 
 int main(int argc, char** argv)

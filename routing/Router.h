@@ -75,7 +75,4 @@ class Router {
         // Of form (dest node, prev node, node cost)
         std::vector<std::tuple<int, int, unsigned int>> least_cost_destination;
         const int inf = 65535;
- 
-
-
 };
