@@ -3,11 +3,145 @@
 #include "Router.h"
 #include "LSDB.h"
 #include "LSA.h"
+#include "rapidjson/document.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/stringbuffer.h"
+#include <vector>
+#include <string>
 
 TEST(InitTest, InitTest)
 {
 	// Used to check if GTest is configured properly
 	EXPECT_EQ(1, 1);
+}
+
+TEST(RapidJsonTest, DetectingParsingErrors)
+{
+	rapidjson::Document document;
+	
+	const char good_json[] = "{\"array\":[-1,0,1.5]}";
+	ASSERT_FALSE(document.Parse(good_json).HasParseError());
+
+	const char bad_json[] = "{\"array\":[-1,0,1.5,]}";
+	ASSERT_TRUE(document.Parse(bad_json).HasParseError());
+}
+
+TEST(RapidJsonTest, ParsingArrays)
+{
+	const char json[] = "{\"array\":[-1,0,1.5]}";
+
+	rapidjson::Document document;
+
+	// ParseInsitu expects dynamically allocated char*
+	char buffer[sizeof(json)];
+    memcpy(buffer, json, sizeof(json));
+
+	// parse json
+	document.ParseInsitu(buffer);
+
+    ASSERT_FALSE(document.HasParseError());
+	ASSERT_TRUE(document.IsObject());
+	ASSERT_TRUE(document.HasMember("array"));
+	
+	const rapidjson::Value& array = document["array"];
+	ASSERT_TRUE(array.IsArray());
+}
+
+TEST(RapidJsonTest, ParsingStrings)
+{
+	const char json[] = "{\"key0\":\"value0\",\"key1\":\"value1\"}";
+
+	// ParseInsitu expects dyanmically allocated char*
+	char buffer[sizeof(json)];
+	memcpy(buffer, json, sizeof(json));
+
+	// parse json
+	rapidjson::Document document;
+	document.ParseInsitu(buffer);
+
+	ASSERT_FALSE(document.HasParseError());
+	ASSERT_TRUE(document.IsObject());
+	ASSERT_TRUE(document.HasMember("key0"));
+	ASSERT_STREQ(document["key0"].GetString(), "value0");
+	ASSERT_TRUE(document.HasMember("key1"));
+	ASSERT_STREQ(document["key1"].GetString(), "value1");
+}
+
+TEST(RapidJsonTest, MakingNestedArrays)
+{
+	// forwarding table for the following network topology:
+	//			[1]
+	//		 5 /   \ 1
+	//		[0]-----[2]
+	//			 11
+	std::vector< std::vector<int> > forwardingTable(3);
+	forwardingTable.at(0) = {0, 0, 0};
+	forwardingTable.at(1) = {1, 0, 5};
+	forwardingTable.at(2) = {2, 1, 6};
+
+	rapidjson::StringBuffer sb;
+	rapidjson::Writer<rapidjson::StringBuffer> json_writer(sb);
+
+	json_writer.StartObject();
+	json_writer.Key("forwardingTable");
+	json_writer.StartArray();
+	for (int i = 0; i < forwardingTable.size(); ++i)
+	{
+		json_writer.StartArray();
+		for (int j = 0; j < forwardingTable.at(0).size(); ++j)
+		{
+			json_writer.Uint(forwardingTable.at(i).at(j));
+		}
+		json_writer.EndArray();
+	}
+	json_writer.EndArray();
+	json_writer.EndObject();
+
+	std::string correct_json = "{\"forwardingTable\":[[0,0,0],[1,0,5],[2,1,6]]}";
+	ASSERT_EQ(sb.GetString(), correct_json);
+}
+
+TEST(RapidJsonTest, MakingNestedArraysWithStrings)
+{
+	// lowest cost table for the following network topology:
+	//			[1]
+	//		 5 /   \ 1
+	//		[0]-----[2]
+	//			 11
+	std::vector< std::vector<std::string> > lowestCostPathTable(3);
+	lowestCostPathTable.at(0) = {"0,0", "0,1", "0,1,2"};
+	lowestCostPathTable.at(1) = {"1,0", "1,1", "1,2"};
+	lowestCostPathTable.at(2) = {"2,1,0", "2,1", "2,2"};
+
+	rapidjson::StringBuffer sb;
+	rapidjson::Writer<rapidjson::StringBuffer> json_writer(sb);
+
+	json_writer.StartObject();
+	json_writer.Key("lowestCostPaths");
+	json_writer.StartObject();
+	
+	char buffer[10];
+	int BUFFER_SIZE = 10;
+
+	for (int i = 0; i < lowestCostPathTable.size(); ++i)
+	{
+		snprintf(buffer, BUFFER_SIZE, "%u", i);
+		json_writer.String(buffer);
+		json_writer.StartObject();
+		for (int j = 0; j < lowestCostPathTable.at(0).size(); ++j)
+		{
+			snprintf(buffer, BUFFER_SIZE, "%u", j);
+			json_writer.Key(buffer);
+			json_writer.String(lowestCostPathTable.at(i).at(j).c_str());
+		}
+		json_writer.EndObject();
+	}
+
+	json_writer.EndObject();
+	json_writer.EndObject();
+	
+	std::string correct_json = "{\"lowestCostPaths\":{\"0\":{\"0\":\"0,0\",\"1\":\"0,1\",\"2\":\"0,1,2\"},\"1\":{\"0\":\"1,0\",\"1\":\"1,1\",\"2\":\"1,2\"},\"2\":{\"0\":\"2,1,0\",\"1\":\"2,1\",\"2\":\"2,2\"}}}";
+	ASSERT_EQ(correct_json, sb.GetString());
 }
 
 TEST(LSDBTest, AddRouterLSATest)
