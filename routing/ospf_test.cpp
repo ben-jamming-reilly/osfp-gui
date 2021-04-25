@@ -3,6 +3,7 @@
 #include "Router.h"
 #include "LSDB.h"
 #include "LSA.h"
+#include "native-ospf/router_json_parser.cpp"
 #include "rapidjson/document.h"
 #include "rapidjson/writer.h"
 #include "rapidjson/stringbuffer.h"
@@ -65,6 +66,34 @@ TEST(RapidJsonTest, ParsingStrings)
 	ASSERT_STREQ(document["key0"].GetString(), "value0");
 	ASSERT_TRUE(document.HasMember("key1"));
 	ASSERT_STREQ(document["key1"].GetString(), "value1");
+}
+
+TEST(RapidJsonTest, ParsingNetworkTopology)
+{
+	std::vector< std::vector<int> > network_topology;
+	std::string json = "{\"networkTopology\":[[0,1,5],[1,0,5],[0,2,11],[2,0,11],[1,2,1],[2,1,1]]}";
+
+	network_topology = parseNetworkTopology(json);
+
+	ASSERT_EQ(network_topology.at(0).at(0), 0);
+	ASSERT_EQ(network_topology.at(0).at(1), 1);
+	ASSERT_EQ(network_topology.at(0).at(2), 5);
+	ASSERT_EQ(network_topology.at(1).at(0), 1);
+	ASSERT_EQ(network_topology.at(1).at(1), 0);
+	ASSERT_EQ(network_topology.at(1).at(2), 5);
+	ASSERT_EQ(network_topology.at(2).at(0), 0);
+	ASSERT_EQ(network_topology.at(2).at(1), 2);
+	ASSERT_EQ(network_topology.at(2).at(2), 11);
+	ASSERT_EQ(network_topology.at(3).at(0), 2);
+	ASSERT_EQ(network_topology.at(3).at(1), 0);
+	ASSERT_EQ(network_topology.at(3).at(2), 11);
+	ASSERT_EQ(network_topology.at(4).at(0), 1);
+	ASSERT_EQ(network_topology.at(4).at(1), 2);
+	ASSERT_EQ(network_topology.at(4).at(2), 1);
+	ASSERT_EQ(network_topology.at(5).at(0), 2);
+	ASSERT_EQ(network_topology.at(5).at(1), 1);
+	ASSERT_EQ(network_topology.at(5).at(2), 1);
+	std::cout << "Do I make it to here?" << std::endl;
 }
 
 TEST(RapidJsonTest, MakingNestedArrays)
