@@ -1,14 +1,14 @@
 #include <iostream>
+#include <vector>
+#include <string>
 #include <gtest/gtest.h>
 #include "Router.h"
 #include "LSDB.h"
 #include "LSA.h"
-#include "native-ospf/router_json_parser.cpp"
+#include "native-ospf/router_json_parser.h"
 #include "rapidjson/document.h"
 #include "rapidjson/writer.h"
 #include "rapidjson/stringbuffer.h"
-#include <vector>
-#include <string>
 
 TEST(InitTest, InitTest)
 {
@@ -93,12 +93,11 @@ TEST(RapidJsonTest, ParsingNetworkTopology)
 	ASSERT_EQ(network_topology.at(5).at(0), 2);
 	ASSERT_EQ(network_topology.at(5).at(1), 1);
 	ASSERT_EQ(network_topology.at(5).at(2), 1);
-	std::cout << "Do I make it to here?" << std::endl;
 }
 
 TEST(RapidJsonTest, MakingNestedArrays)
 {
-	// forwarding table for the following network topology:
+	// forwarding table for node 0 in the following network topology:
 	//			[1]
 	//		 5 /   \ 1
 	//		[0]-----[2]
@@ -108,26 +107,10 @@ TEST(RapidJsonTest, MakingNestedArrays)
 	forwardingTable.at(1) = {1, 0, 5};
 	forwardingTable.at(2) = {2, 1, 6};
 
-	rapidjson::StringBuffer sb;
-	rapidjson::Writer<rapidjson::StringBuffer> json_writer(sb);
-
-	json_writer.StartObject();
-	json_writer.Key("forwardingTable");
-	json_writer.StartArray();
-	for (int i = 0; i < forwardingTable.size(); ++i)
-	{
-		json_writer.StartArray();
-		for (int j = 0; j < forwardingTable.at(0).size(); ++j)
-		{
-			json_writer.Uint(forwardingTable.at(i).at(j));
-		}
-		json_writer.EndArray();
-	}
-	json_writer.EndArray();
-	json_writer.EndObject();
-
+	std::string composed_json = composeForwardingTable(forwardingTable);
 	std::string correct_json = "{\"forwardingTable\":[[0,0,0],[1,0,5],[2,1,6]]}";
-	ASSERT_EQ(sb.GetString(), correct_json);
+	
+	ASSERT_EQ(composed_json, correct_json);
 }
 
 TEST(RapidJsonTest, MakingNestedArraysWithStrings)
@@ -137,40 +120,15 @@ TEST(RapidJsonTest, MakingNestedArraysWithStrings)
 	//		 5 /   \ 1
 	//		[0]-----[2]
 	//			 11
-	std::vector< std::vector<std::string> > lowestCostPathTable(3);
-	lowestCostPathTable.at(0) = {"0,0", "0,1", "0,1,2"};
-	lowestCostPathTable.at(1) = {"1,0", "1,1", "1,2"};
-	lowestCostPathTable.at(2) = {"2,1,0", "2,1", "2,2"};
+	std::vector< std::vector<std::string> > leastCostPathsTable(3);
+	leastCostPathsTable.at(0) = {"0,0", "0,1", "0,1,2"};
+	leastCostPathsTable.at(1) = {"1,0", "1,1", "1,2"};
+	leastCostPathsTable.at(2) = {"2,1,0", "2,1", "2,2"};
 
-	rapidjson::StringBuffer sb;
-	rapidjson::Writer<rapidjson::StringBuffer> json_writer(sb);
-
-	json_writer.StartObject();
-	json_writer.Key("lowestCostPaths");
-	json_writer.StartObject();
-	
-	char buffer[10];
-	int BUFFER_SIZE = 10;
-
-	for (int i = 0; i < lowestCostPathTable.size(); ++i)
-	{
-		snprintf(buffer, BUFFER_SIZE, "%u", i);
-		json_writer.String(buffer);
-		json_writer.StartObject();
-		for (int j = 0; j < lowestCostPathTable.at(0).size(); ++j)
-		{
-			snprintf(buffer, BUFFER_SIZE, "%u", j);
-			json_writer.Key(buffer);
-			json_writer.String(lowestCostPathTable.at(i).at(j).c_str());
-		}
-		json_writer.EndObject();
-	}
-
-	json_writer.EndObject();
-	json_writer.EndObject();
-	
+	std::string composed_json = composeLeastCostPathsTable(leastCostPathsTable);
 	std::string correct_json = "{\"lowestCostPaths\":{\"0\":{\"0\":\"0,0\",\"1\":\"0,1\",\"2\":\"0,1,2\"},\"1\":{\"0\":\"1,0\",\"1\":\"1,1\",\"2\":\"1,2\"},\"2\":{\"0\":\"2,1,0\",\"1\":\"2,1\",\"2\":\"2,2\"}}}";
-	ASSERT_EQ(correct_json, sb.GetString());
+	
+	ASSERT_EQ(composed_json, correct_json);
 }
 
 TEST(LSDBTest, AddRouterLSATest)
