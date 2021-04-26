@@ -21,7 +21,14 @@ class Router {
             return this->routerID;
         }
 
-        void lsac() {}
+        void set_networkLSD(LSDB network) {
+            this->networkLSA = network;
+        }
+
+        std::vector<std::tuple<int, int, unsigned int>> get_least_cost_dest() {
+            return this->least_cost_destination;
+        }
+
 
         /**
          * This function calculates starting values for the least_cost_destination
@@ -52,7 +59,6 @@ class Router {
         
 
     private:
-        std::vector<std::pair<Router, int>> neighbors;
         int routerID;
         std::vector<int> all_dest;
         // routerLSA;

@@ -87,7 +87,3 @@ void Router::calculate_dijkstras() {
         }
     } 
 }
-
-std::vector<std::pair<int, int>> Router::find_connections_with(int router) {
-
-}
