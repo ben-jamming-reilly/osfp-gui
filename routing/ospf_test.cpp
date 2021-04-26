@@ -198,6 +198,72 @@ TEST(LSDBTest, UpdateDatabase)
 	ASSERT_EQ(lsa_list.at(2).SEQ_NUM, INIT_SEQ_NUM+1);
 }
 
+TEST(LSDBTest, get_all_destinations) {
+	enum node
+	{
+		u = 0,
+		v = 1,
+		w = 2,
+		x = 3
+	};
+
+	std::vector<int> destinations;
+	std::vector<int> answers;
+	LSDB lsdb;
+
+	// Grabs the correct 2 routers
+	RouterLSA lsa = { Link(u, v), INIT_SEQ_NUM, 1};
+	lsdb.add_router_lsa(lsa);
+	destinations = lsdb.get_all_destinations();
+	answers = {1, 0};
+	ASSERT_EQ(destinations, answers);
+
+	// Grabs correct number with routers in multiple links
+	lsa = { Link(u, w), INIT_SEQ_NUM, 1};
+	lsdb.add_router_lsa(lsa);
+	destinations = lsdb.get_all_destinations();
+	answers = {1, 0, 2};
+	ASSERT_EQ(destinations, answers);
+
+}
+
+TEST(LSDBTest, find_connections_with) {
+		enum node
+	{
+		u = 0,
+		v = 1,
+		w = 2,
+		x = 3
+	};
+
+	std::vector<std::pair<int, int>> destinations;
+	std::vector<std::pair<int, int>> answers;
+	LSDB lsdb;
+
+	// Grabs the 1 link
+	RouterLSA lsa = { Link(u, v), INIT_SEQ_NUM, 1};
+	lsdb.add_router_lsa(lsa);
+	destinations = lsdb.find_connections_with(u);
+	std::pair<int, int> pair = std::make_pair(v, 1);
+	answers.push_back(pair);
+	ASSERT_EQ(destinations, answers);
+
+	// Grabs 2 links
+	lsa = { Link(u, x), INIT_SEQ_NUM, 2};
+	lsdb.add_router_lsa(lsa);
+	destinations = lsdb.find_connections_with(u);
+	pair = std::make_pair(u, 2);
+	answers.push_back(pair);
+	ASSERT_EQ(destinations, answers);
+
+	// Doesn't grab the unrelated link
+	lsa = { Link(w, x), INIT_SEQ_NUM, 2};
+	lsdb.add_router_lsa(lsa);
+	destinations = lsdb.find_connections_with(u);
+	ASSERT_EQ(destinations, answers);
+
+}
+
 int main(int argc, char** argv)
 {
 	testing::InitGoogleTest(&argc, argv);
