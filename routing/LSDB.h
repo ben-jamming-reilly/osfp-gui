@@ -187,7 +187,8 @@ std::vector<std::pair<int, int>> LSDB::find_connections_with(int router) {
         }
         // Add to the list if it is
         if(link != -1) {
-            connections.push_back(std::pair<int, int>(link, cost));
+            std::pair<int, int> new_connection = std::make_pair(link, cost);
+            connections.push_back(new_connection);
         }
     }
     return connections;
