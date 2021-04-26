@@ -6,7 +6,7 @@ import NavbarBrand from "react-bootstrap/NavbarBrand";
 
 const CommandBar = () => {
   return (
-    <NavBar fixed='bottom' bg='primary' variant='dark'>
+    <NavBar bg='primary' variant='dark'>
       <NavbarBrand>
         <h3>OSPF</h3>
       </NavbarBrand>

@@ -1,3 +1,4 @@
 import { combineReducers } from "redux";
+import settings from "./settings";
 
-export default combineReducers({});
+export default combineReducers({ settings });

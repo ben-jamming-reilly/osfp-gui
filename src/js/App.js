@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 import { Provider } from "react-redux";
 import store from "./store";
@@ -9,16 +9,24 @@ import Col from "react-bootstrap/Col";
 
 // Components
 import CommandBar from "./components/CommandBar";
+import RouterDisplay from "./components/RouterDisplay";
+import InfoPanel from "./components/InfoPanel";
+
+import "./App.css";
 
 const App = () => {
   return (
     <Provider store={store}>
       <Container fluid>
-        <Row>
-          <Col xs='9'>a</Col>
-          <Col xs='3'>b</Col>
+        <Row style={{ height: "87vh" }}>
+          <Col xs={8} className='p-0'>
+            <RouterDisplay />
+          </Col>
+          <Col xs={4} className='bg-light p-1'>
+            <InfoPanel />
+          </Col>
         </Row>
-        <Row>
+        <Row style={{ height: "13vh" }}>
           <CommandBar />
         </Row>
       </Container>
