@@ -252,7 +252,7 @@ TEST(LSDBTest, find_connections_with) {
 	lsa = { Link(u, x), INIT_SEQ_NUM, 2};
 	lsdb.add_router_lsa(lsa);
 	destinations = lsdb.find_connections_with(u);
-	pair = std::make_pair(u, 2);
+	pair = std::make_pair(x, 2);
 	answers.push_back(pair);
 	ASSERT_EQ(destinations, answers);
 

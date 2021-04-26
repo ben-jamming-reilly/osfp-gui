@@ -5,6 +5,7 @@
 #include <vector>
 #include <map>
 #include <algorithm>
+#include <ostream>
 
 class LSDB
 {
@@ -176,18 +177,21 @@ std::vector<std::pair<int, int>> LSDB::find_connections_with(int router) {
     {
         link = -1;
         cost = 65535;
+
         // See if one of the routers is the given one
         if(lsa->second.LINK.get_dest_id() == router) {
             link = lsa->second.LINK.get_src_id();
             cost = lsa->second.LINK_COST;
+            
         }
-        else if(lsa->second.LINK.get_src_id()) {
+        else if(lsa->second.LINK.get_src_id() == router) {
             link = lsa->second.LINK.get_dest_id();
             cost = lsa->second.LINK_COST;
         }
         // Add to the list if it is
         if(link != -1) {
             connections.push_back(std::pair<int, int>(link, cost));
+            
         }
     }
     return connections;
