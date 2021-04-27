@@ -7,9 +7,9 @@ import NavbarBrand from "react-bootstrap/NavbarBrand";
 import Nav from "react-bootstrap/Nav";
 import Button from "react-bootstrap/Button";
 
-import { addRouter } from "../actions/topology";
+import { addRouter, removeRouter } from "../actions/topology";
 
-const CommandBar = ({ addRouter }) => {
+const CommandBar = ({ addRouter, removeRouter, topology }) => {
   return (
     <NavBar bg='primary' variant='dark'>
       <NavbarBrand>
@@ -17,12 +17,22 @@ const CommandBar = ({ addRouter }) => {
       </NavbarBrand>
       <Nav className='justify-content-end' style={{ width: "100%" }}>
         <Nav.Item>
-          <Button variant='success' onClick={() => addRouter()}>
-            <h5>Add Router</h5>
+          <Button
+            className='mx-1'
+            variant='success'
+            onClick={() => addRouter()}
+          >
+            Add Router
           </Button>
-          <Button variant='danger' onClick={() => addRouter()}>
-            <h5>Remove Router</h5>
-          </Button>
+          {topology.size > 2 && (
+            <Button
+              className='mx-1'
+              variant='danger'
+              onClick={() => removeRouter()}
+            >
+              Remove Router
+            </Button>
+          )}
         </Nav.Item>
       </Nav>
     </NavBar>
@@ -31,8 +41,12 @@ const CommandBar = ({ addRouter }) => {
 
 CommandBar.propTypes = {
   addRouter: PropTypes.func.isRequired,
+  removeRouter: PropTypes.func.isRequired,
+  topology: PropTypes.object.isRequired,
 };
 
-const stateToProps = (state) => ({});
+const stateToProps = (state) => ({
+  topology: state.topology,
+});
 
-export default connect(stateToProps, { addRouter })(CommandBar);
+export default connect(stateToProps, { addRouter, removeRouter })(CommandBar);

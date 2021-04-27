@@ -68,7 +68,7 @@ function topologyReducer(state = initialState, action) {
     case REMOVE_ROUTER:
       return {
         ...state, //graph: payload.graph,
-        size: state.size--,
+        size: state.size - 1,
       };
     case ADJUST_WEIGHTS:
       return {
