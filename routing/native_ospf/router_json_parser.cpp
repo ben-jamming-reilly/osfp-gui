@@ -1,4 +1,8 @@
+#include <vector>
+#include <algorithm>
+
 #include "router_json_parser.h"
+#include "ospf.h"
 
 std::vector< std::vector<int> > parseNetworkTopology(std::string json)
 {
@@ -27,24 +31,89 @@ std::vector< std::vector<int> > parseNetworkTopology(std::string json)
     return networkTopology;
 }
 
-std::string composeForwardingTable(std::vector< std::vector<int> > forwardingTable)
+std::vector<int> parseRouterIDs(std::vector< std::vector<int> > networkTopology)
+{
+	// note that network topology links are in the following form:
+	// [destination ID, source ID, link cost]
+
+	std::vector<int> router_ids;
+
+	int routerID;
+	for (int i = 0; i < networkTopology.size(); ++i)
+	{
+		routerID = networkTopology.at(i).at(0);	// destination ID for given link
+		if (std::count(router_ids.begin(), router_ids.end(), routerID) == 0)
+		{
+			router_ids.push_back(routerID);
+		}
+
+		routerID = networkTopology.at(i).at(1);	// source ID for given link
+		if (std::count(router_ids.begin(), router_ids.end(), routerID) == 0)
+		{
+			router_ids.push_back(routerID);
+		}
+	}
+
+	return router_ids;
+
+	/*
+	// this implementation keeps router_ids in sorted order and uses
+	// binary search to check if an ID has already been recorded
+
+	// first router ID is guaranteed to be unique
+	router_ids.push_back(networkTopology.at(0).at(0));
+
+	int min_id = router_ids.at(0);
+	int max_id = router_ids.at(0);
+	for (int i = 0; i < networkTopology.size(); ++i)
+	{
+		// step #1: check if router id already exists
+		while ()
+		if (router_ids. networkTopology.at(i).at(0) )
+	}
+	*/
+}
+
+std::string composeForwardingTable(std::vector<ForwardingTable> forwardingTables, std::vector<int> routerIDs)
 {
     rapidjson::StringBuffer sb;
     rapidjson::Writer<rapidjson::StringBuffer> json_writer(sb);
 
-    	json_writer.StartObject();
+    json_writer.StartObject();
 	json_writer.Key("forwardingTable");
-	json_writer.StartArray();
-	for (int i = 0; i < forwardingTable.size(); ++i)
+	json_writer.StartObject();
+
+	char buffer[10];
+	int BUFFER_SIZE = 10;
+	int routerID;
+	ForwardingTable forwardingTable;
+	std::vector<int> tableEntry;
+	for (int i = 0; i < forwardingTables.size(); ++i)
 	{
+		int routerID = routerIDs.at(i);
+		snprintf(buffer, BUFFER_SIZE, "%u", routerID);
+		json_writer.Key(buffer);
 		json_writer.StartArray();
-		for (int j = 0; j < forwardingTable.at(0).size(); ++j)
+
+		forwardingTable = forwardingTables.at(i);
+		for (int j = 0; j < forwardingTable.size(); ++j)
 		{
-			json_writer.Uint(forwardingTable.at(i).at(j));
+			tableEntry = forwardingTable.at(j);
+			json_writer.StartArray();
+
+			// destination node
+			json_writer.Uint(tableEntry.at(0));
+			// first-hop router to destination node
+			json_writer.Uint(tableEntry.at(1));
+			// cost to destination router from router i
+			json_writer.Uint(tableEntry.at(2));
+
+			json_writer.EndArray();
 		}
 		json_writer.EndArray();
 	}
-	json_writer.EndArray();
+
+	json_writer.EndObject();
 	json_writer.EndObject();
 
     return sb.GetString();

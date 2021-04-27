@@ -5,7 +5,8 @@
 #include "Router.h"
 #include "LSDB.h"
 #include "LSA.h"
-#include "native-ospf/router_json_parser.h"
+#include "native_ospf/router_json_parser.h"
+#include "ospf.h"
 #include "rapidjson/document.h"
 #include "rapidjson/writer.h"
 #include "rapidjson/stringbuffer.h"
@@ -95,25 +96,60 @@ TEST(RapidJsonTest, ParsingNetworkTopology)
 	ASSERT_EQ(network_topology.at(5).at(2), 1);
 }
 
-TEST(RapidJsonTest, MakingNestedArrays)
+TEST(RapidJsonTest, ParsingRouterIDs)
 {
-	// forwarding table for node 0 in the following network topology:
+	std::vector< std::vector<int> > network_topology;
+	std::vector<int> routerIDs;
+	std::string json = "{\"networkTopology\":[[0,1,5],[1,0,5],[0,2,11],[2,0,11],[1,2,1],[2,1,1]]}";
+
+	network_topology = parseNetworkTopology(json);
+	routerIDs = parseRouterIDs(network_topology);
+
+	ASSERT_EQ(routerIDs.size(), 3);
+	ASSERT_EQ(std::count(routerIDs.begin(), routerIDs.end(), 0), 1);
+	ASSERT_EQ(std::count(routerIDs.begin(), routerIDs.end(), 1), 1);
+	ASSERT_EQ(std::count(routerIDs.begin(), routerIDs.end(), 2), 1);
+}
+
+TEST(RapidJsonTest, ComposingForwardingTable)
+{
+	// forwarding table for nodes 0,1,2 in the following network topology:
 	//			[1]
 	//		 5 /   \ 1
 	//		[0]-----[2]
 	//			 11
-	std::vector< std::vector<int> > forwardingTable(3);
-	forwardingTable.at(0) = {0, 0, 0};
-	forwardingTable.at(1) = {1, 0, 5};
-	forwardingTable.at(2) = {2, 1, 6};
+	ForwardingTable firstForwardingTable = {
+		{0, 0, 0},
+		{1, 0, 5},
+		{2, 1, 6}
+	};
 
-	std::string composed_json = composeForwardingTable(forwardingTable);
-	std::string correct_json = "{\"forwardingTable\":[[0,0,0],[1,0,5],[2,1,6]]}";
+	ForwardingTable secondForwardingTable = {
+		{0, 0, 5},
+		{1, 1, 0},
+		{2, 2, 1}
+	};
+
+	ForwardingTable thirdForwardingTable = {
+		{0, 1, 6},
+		{1, 1, 1},
+		{2, 2, 0}
+	};
+
+	std::vector<ForwardingTable> forwardingTables = {
+		firstForwardingTable,
+		secondForwardingTable,
+		thirdForwardingTable
+	};
+
+	std::vector<int> routerIDs = {0, 1, 2};
+	std::string composed_json = composeForwardingTable(forwardingTables, routerIDs);
+	std::string correct_json = "{\"forwardingTable\":{\"0\":[[0,0,0],[1,0,5],[2,1,6]],\"1\":[[0,0,5],[1,1,0],[2,2,1]],\"2\":[[0,1,6],[1,1,1],[2,2,0]]}}";
 	
 	ASSERT_EQ(composed_json, correct_json);
 }
 
-TEST(RapidJsonTest, MakingNestedArraysWithStrings)
+TEST(RapidJsonTest, ComposeLowestCostPathsTable)
 {
 	// lowest cost table for the following network topology:
 	//			[1]

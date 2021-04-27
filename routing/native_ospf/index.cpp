@@ -1,6 +1,7 @@
 #include <napi.h>
 #include <string>
 #include "router_json_parser.h"
+#include "ospf.h"
 
 
 // For the both getForwardingTable() and getLeastCostPathsTable(),
@@ -80,14 +81,14 @@ Napi::String getForwardingTable(const Napi::CallbackInfo& info)
 {
     Napi::Env env = info.Env();
     std::string json = (std::string) info[0].ToString();
-    int router_id = (int) info[1].ToNumber();
 
     std::vector< std::vector<int> > network_topology = parseNetworkTopology(json);
     
     // TODO: add code generating forwarding table
-    std::vector< std::vector<int> > forwardingTable;
+    std::vector<ForwardingTable> forwardingTable;
 
-    std::string composed_json = composeForwardingTable(forwardingTable);
+    std::vector<int> routerIDs = parseRouterIDs(network_topology);
+    std::string composed_json = composeForwardingTable(forwardingTable, routerIDs);
 
     return Napi::String::New(env, composed_json);
 }
@@ -113,6 +114,7 @@ Napi::String getForwardingTable(const Napi::CallbackInfo& info)
 //      }
 //    }
 //  }
+//
 Napi::String getLeastCostPathsTable(const Napi::CallbackInfo& info)
 {
     Napi::Env env = info.Env();
@@ -127,6 +129,7 @@ Napi::String getLeastCostPathsTable(const Napi::CallbackInfo& info)
 
     return Napi::String::New(env, composed_json);
 }
+
 
 Napi::Object Init(Napi::Env env, Napi::Object exports)
 {
