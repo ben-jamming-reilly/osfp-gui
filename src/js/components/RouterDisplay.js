@@ -27,7 +27,7 @@ const useWindowSize = () => {
 };
 
 const RouterDisplay = () => {
-  const arr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  const arr = [1, 2, 3, 4, 5];
   const compRef = useRef(null);
   const winSize = useWindowSize();
 
@@ -54,12 +54,14 @@ const RouterDisplay = () => {
 
   const xCoord = (grad) =>
     Math.round(
-      0.7 * (dim.width / 2) * Math.cos(2 * Math.PI * grad) + dim.width / 2
+      0.7 * (dim.width / 2) * Math.cos(2 * Math.PI * grad - Math.PI / 2) +
+        dim.width / 2
     );
 
   const yCoord = (grad) =>
     Math.round(
-      0.7 * (dim.height / 2) * Math.sin(2 * Math.PI * grad) + dim.height / 2
+      0.7 * (dim.height / 2) * Math.sin(2 * Math.PI * grad - Math.PI / 2) +
+        dim.height / 2
     );
 
   return (

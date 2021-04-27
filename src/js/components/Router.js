@@ -14,8 +14,12 @@ const Router = ({ x, y, name }) => {
   }, [x, y]);
 
   return (
-    <div className='position-absolute' ref={compRef}>
-      <Button variant='outline-primary'>
+    <div
+      className='position-absolute'
+      ref={compRef}
+      style={{ height: "50px", width: "50px" }}
+    >
+      <Button variant='outline-primary' style={{ borderRadius: "50px" }}>
         <Row className='justify-content-center'>
           {name}
           <XCircle />

@@ -1,9 +1,15 @@
 import React, { useState } from "react";
 
+// sub-component
+import TablesInfo from "./TablesInfo";
+import TopologyInfo from "./TopologyInfo";
+
+// bootstrap
 import Card from "react-bootstrap/Card";
 import ButtonGroup from "react-bootstrap/ButtonGroup";
 import Button from "react-bootstrap/Button";
 
+// icon
 import GraphIcon from "../icons/Graph";
 import TableIcon from "../icons/Table";
 
@@ -28,7 +34,7 @@ const InfoPanel = () => {
           </Button>
         </ButtonGroup>
       </Card.Header>
-      <Card.Body>{isTableView ? "table" : "Topology"}</Card.Body>
+      <Card.Body>{isTableView ? <TablesInfo /> : <TopologyInfo />}</Card.Body>
     </Card>
   );
 };
