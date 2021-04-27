@@ -30,18 +30,14 @@ const useWindowSize = () => {
 };
 
 const RouterDisplay = ({ topology }) => {
-  let arr = [];
-
   const compRef = useRef(null);
   const winSize = useWindowSize();
   const [numRouters, setNumRouters] = useState(topology.size);
-
+  const [arr, setArr] = useState([]);
   const [dim, setDim] = useState({
     height: 0,
     width: 0,
   });
-
-  for (let i = 0; i < numRouters; i++) arr.push(i + 1);
 
   useEffect(() => {
     function handleResize() {
@@ -60,8 +56,10 @@ const RouterDisplay = ({ topology }) => {
   }, [winSize]);
 
   useEffect(() => {
-    arr = [];
-    for (let i = 0; i < numRouters; i++) arr.push(i + 1);
+    let newArr = [];
+    for (let i = 1; i <= topology.size; i++) newArr.push(i);
+
+    setArr(newArr);
   }, [topology.size]);
 
   const xCoord = (grad, scalar) =>

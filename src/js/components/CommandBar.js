@@ -20,6 +20,9 @@ const CommandBar = ({ addRouter }) => {
           <Button variant='success' onClick={() => addRouter()}>
             <h5>Add Router</h5>
           </Button>
+          <Button variant='danger' onClick={() => addRouter()}>
+            <h5>Remove Router</h5>
+          </Button>
         </Nav.Item>
       </Nav>
     </NavBar>
