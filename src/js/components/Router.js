@@ -17,9 +17,9 @@ const Router = ({ x, y, name }) => {
     <div
       className='position-absolute'
       ref={compRef}
-      style={{ height: "50px", width: "50px" }}
+      style={{ height: "50px", width: "50px", zIndex: "100" }}
     >
-      <Button variant='outline-primary' style={{ borderRadius: "50px" }}>
+      <Button className='' variant='primary' style={{ borderRadius: "50px" }}>
         <Row className='justify-content-center'>
           {name}
           <XCircle />

@@ -1,12 +1,15 @@
 import React from "react";
 import PropTypes from "prop-types";
+import { connect } from "react-redux";
 
 import NavBar from "react-bootstrap/Navbar";
 import NavbarBrand from "react-bootstrap/NavbarBrand";
 import Nav from "react-bootstrap/Nav";
 import Button from "react-bootstrap/Button";
 
-const CommandBar = () => {
+import { addRouter } from "../actions/topology";
+
+const CommandBar = ({ addRouter }) => {
   return (
     <NavBar bg='primary' variant='dark'>
       <NavbarBrand>
@@ -14,7 +17,7 @@ const CommandBar = () => {
       </NavbarBrand>
       <Nav className='justify-content-end' style={{ width: "100%" }}>
         <Nav.Item>
-          <Button variant='success'>
+          <Button variant='success' onClick={() => addRouter()}>
             <h5>Add Router</h5>
           </Button>
         </Nav.Item>
@@ -23,6 +26,10 @@ const CommandBar = () => {
   );
 };
 
-CommandBar.propTypes = {};
+CommandBar.propTypes = {
+  addRouter: PropTypes.func.isRequired,
+};
 
-export default CommandBar;
+const stateToProps = (state) => ({});
+
+export default connect(stateToProps, { addRouter })(CommandBar);
