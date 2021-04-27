@@ -14,7 +14,7 @@ const Router = ({ x, y, name }) => {
 
   return (
     <Fragment>
-      {true && (
+      {x > 10 && y > 10 && (
         <div
           className='position-absolute'
           ref={compRef}

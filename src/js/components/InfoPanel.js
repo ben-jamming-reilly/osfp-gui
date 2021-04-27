@@ -12,6 +12,7 @@ import Button from "react-bootstrap/Button";
 // icon
 import GraphIcon from "../icons/Graph";
 import TableIcon from "../icons/Table";
+import ArrowBowRight from "../icons/ArrowBoxRight";
 
 const InfoPanel = () => {
   const [isTableView, setIsTableView] = useState(false);
@@ -35,6 +36,11 @@ const InfoPanel = () => {
         </ButtonGroup>
       </Card.Header>
       <Card.Body>{isTableView ? <TablesInfo /> : <TopologyInfo />}</Card.Body>
+      <Card.Footer className='text-muted text-center my-0 py-1'>
+        <Button variant='outline-danger'>
+          <ArrowBowRight />
+        </Button>
+      </Card.Footer>
     </Card>
   );
 };
