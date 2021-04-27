@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import PropTypes from "prop-types";
+import { connect } from "react-redux";
 
 // sub-component
 import TablesInfo from "./TablesInfo";
@@ -14,7 +16,9 @@ import GraphIcon from "../icons/Graph";
 import TableIcon from "../icons/Table";
 import ArrowBowRight from "../icons/ArrowBoxRight";
 
-const InfoPanel = () => {
+import { deselectRouter } from "../actions/settings";
+
+const InfoPanel = ({ deselectRouter }) => {
   const [isTableView, setIsTableView] = useState(false);
 
   return (
@@ -37,7 +41,7 @@ const InfoPanel = () => {
       </Card.Header>
       <Card.Body>{isTableView ? <TablesInfo /> : <TopologyInfo />}</Card.Body>
       <Card.Footer className='text-muted text-center my-0 py-1'>
-        <Button variant='outline-danger'>
+        <Button variant='outline-danger' onClick={() => deselectRouter()}>
           <ArrowBowRight />
         </Button>
       </Card.Footer>
@@ -45,4 +49,10 @@ const InfoPanel = () => {
   );
 };
 
-export default InfoPanel;
+InfoPanel.propTypes = {
+  deselectRouter: PropTypes.func.isRequired,
+};
+
+const stateToProps = (state) => ({});
+
+export default connect(stateToProps, { deselectRouter })(InfoPanel);

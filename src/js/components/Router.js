@@ -1,10 +1,14 @@
 import React, { Fragment, useState, useEffect, useRef } from "react";
+import PropTypes from "prop-types";
+import { connect } from "react-redux";
 
 import XCircle from "../icons/XCircle";
 import Button from "react-bootstrap/Button";
 import Row from "react-bootstrap/Row";
 
-const Router = ({ x, y, name }) => {
+import { selectRouter } from "../actions/settings";
+
+const Router = ({ selectRouter, x, y, name }) => {
   const compRef = useRef(null);
 
   useEffect(() => {
@@ -24,6 +28,7 @@ const Router = ({ x, y, name }) => {
             className=''
             variant='primary'
             style={{ borderRadius: "50px" }}
+            onClick={() => selectRouter()}
           >
             <Row className='justify-content-center'>
               {name}
@@ -36,4 +41,10 @@ const Router = ({ x, y, name }) => {
   );
 };
 
-export default Router;
+Router.propTypes = {
+  selectRouter: PropTypes.func.isRequired,
+};
+
+const stateToProps = (state) => ({});
+
+export default connect(stateToProps, { selectRouter })(Router);

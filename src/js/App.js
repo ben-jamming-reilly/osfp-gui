@@ -1,7 +1,6 @@
-import React, { useState } from "react";
-
-import { Provider } from "react-redux";
-import store from "./store";
+import React, { useState, useEffect } from "react";
+import PropTypes from "prop-types";
+import { connect } from "react-redux";
 
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
@@ -14,24 +13,38 @@ import InfoPanel from "./components/InfoPanel";
 
 import "./App.css";
 
-const App = () => {
+const App = ({ settings }) => {
+  const [showPanel, setShowPanel] = useState(false);
+
+  useEffect(() => {
+    setShowPanel(settings.showInfoPanel);
+  }, [settings.showInfoPanel]);
+
   return (
-    <Provider store={store}>
-      <Container fluid>
-        <Row style={{ height: "87vh" }}>
-          <Col xs={8} className='p-0'>
-            <RouterDisplay />
-          </Col>
+    <Container fluid>
+      <Row style={{ height: "87vh" }}>
+        <Col xs={showPanel ? 8 : 12} className='p-0'>
+          <RouterDisplay />
+        </Col>
+        {showPanel && (
           <Col xs={4} className='bg-light p-1'>
             <InfoPanel />
           </Col>
-        </Row>
-        <Row style={{ height: "13vh" }}>
-          <CommandBar />
-        </Row>
-      </Container>
-    </Provider>
+        )}
+      </Row>
+      <Row style={{ height: "13vh" }}>
+        <CommandBar />
+      </Row>
+    </Container>
   );
 };
 
-export default App;
+App.propTypes = {
+  settings: PropTypes.object.isRequired,
+};
+
+const stateToProps = (state) => ({
+  settings: state.settings,
+});
+
+export default connect(stateToProps, {})(App);

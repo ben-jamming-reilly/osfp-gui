@@ -29,7 +29,7 @@ const useWindowSize = () => {
   return windowSize;
 };
 
-const RouterDisplay = ({ topology }) => {
+const RouterDisplay = ({ topology, settings }) => {
   const compRef = useRef(null);
   const winSize = useWindowSize();
   const [numRouters, setNumRouters] = useState(topology.size);
@@ -53,7 +53,7 @@ const RouterDisplay = ({ topology }) => {
     });
 
     return () => window.removeEventListener("resize", handleResize);
-  }, [winSize]);
+  }, [winSize, settings]);
 
   useEffect(() => {
     let newArr = [];
@@ -107,10 +107,12 @@ const RouterDisplay = ({ topology }) => {
 
 RouterDisplay.propTypes = {
   topology: PropTypes.object.isRequired,
+  settings: PropTypes.object.isRequired,
 };
 
 const stateToProps = (state) => ({
   topology: state.topology,
+  settings: state.settings,
 });
 
 export default connect(stateToProps, {})(RouterDisplay);

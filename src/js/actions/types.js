@@ -8,3 +8,4 @@ export const UPDATE_TABLE = "UPDATE_TABLE";
 
 // Settings
 export const SELECT_ROUTER = "SELECT_ROUTER";
+export const DESELECT_ROUTER = "DESELECT_ROUTER";
