@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
-import PropTypes from "prop-types";
+import React, { Fragment, useState, useEffect, useRef } from "react";
 
 import XCircle from "../icons/XCircle";
 import Button from "react-bootstrap/Button";
@@ -14,21 +13,27 @@ const Router = ({ x, y, name }) => {
   }, [x, y]);
 
   return (
-    <div
-      className='position-absolute'
-      ref={compRef}
-      style={{ height: "50px", width: "50px", zIndex: "100" }}
-    >
-      <Button className='' variant='primary' style={{ borderRadius: "50px" }}>
-        <Row className='justify-content-center'>
-          {name}
-          <XCircle />
-        </Row>
-      </Button>
-    </div>
+    <Fragment>
+      {true && (
+        <div
+          className='position-absolute'
+          ref={compRef}
+          style={{ height: "50px", width: "50px", zIndex: "100" }}
+        >
+          <Button
+            className=''
+            variant='primary'
+            style={{ borderRadius: "50px" }}
+          >
+            <Row className='justify-content-center'>
+              {name}
+              <XCircle />
+            </Row>
+          </Button>
+        </div>
+      )}
+    </Fragment>
   );
 };
-
-Router.propTypes = {};
 
 export default Router;

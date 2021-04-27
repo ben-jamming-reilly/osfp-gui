@@ -9,6 +9,9 @@ import Button from "react-bootstrap/Button";
 
 import { addRouter, removeRouter } from "../actions/topology";
 
+import CircleMinus from "../icons/CircleMinus";
+import CirclePlus from "../icons/CirclePlus";
+
 const CommandBar = ({ addRouter, removeRouter, topology }) => {
   return (
     <NavBar bg='primary' variant='dark'>
@@ -22,7 +25,7 @@ const CommandBar = ({ addRouter, removeRouter, topology }) => {
             variant='success'
             onClick={() => addRouter()}
           >
-            Add Router
+            <CirclePlus /> Router
           </Button>
           {topology.size > 2 && (
             <Button
@@ -30,7 +33,7 @@ const CommandBar = ({ addRouter, removeRouter, topology }) => {
               variant='danger'
               onClick={() => removeRouter()}
             >
-              Remove Router
+              <CircleMinus /> Router
             </Button>
           )}
         </Nav.Item>
