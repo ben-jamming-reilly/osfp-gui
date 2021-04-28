@@ -9,6 +9,7 @@ various functions and variables a router would need.
 #include <vector>
 #include <bits/stdc++.h>
 #include <tuple>
+#include <iostream>
 #include "LSDB.h"
 
 #ifndef ROUTER_H

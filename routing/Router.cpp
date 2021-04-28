@@ -36,14 +36,26 @@ void Router::calculate_dijkstras() {
     this->all_dest = this->networkLSA.get_all_destinations();
     this->least_cost_destination = populate_least_cost_destination(this->all_dest);
 
-    std::vector<int> nprime;
+    std::vector<int> nprime = {};
     nprime.push_back(this->routerID);
 
     // For all destinations
     while(nprime.size() < this->all_dest.size()) {
         // Find the next destination to calculate
         int cur_w = compute_lowest_dv(nprime);
+        if(cur_w == this->routerID) {
+            break;
+        }
+        for(int j = 0; j < nprime.size(); j++) {
+            std::cout << nprime.at(j);
+        }
+        std::cout << std::endl;
         nprime.push_back(cur_w);
+        for(int j = 0; j < nprime.size(); j++) {
+            std::cout << nprime.at(j);
+        }
+        std::cout << std::endl;
+        std::cout << "cur w: " << cur_w << std::endl;
 
         // Find all connections with cur_w that aren't already in nprime
         std::vector<std::pair<int, int>> connected_routers = this->networkLSA.find_connections_with(cur_w);
@@ -53,6 +65,9 @@ void Router::calculate_dijkstras() {
                 if(nprime.at(i) == connected_routers.at(i).first) {
                     connected_routers.erase(connected_routers.begin()+j); // erase jth element
                     j--;
+                }
+                else {
+                    std::cout << connected_routers.at(i).first << connected_routers.at(i).second << std::endl;
                 }
             }
         }
@@ -92,5 +107,36 @@ void Router::calculate_dijkstras() {
 // in nprime but not itself in nprime
 int Router::compute_lowest_dv(std::vector<int> nprime)
 {
+    int least_cost = this->inf;
+    int cur_cost = this->inf;
+    bool in_nprime = false;
+    int cur_small = this->routerID;
+    // For every destination
+    for(int i = 0; i < this->all_dest.size(); i++) {
+        int cur_val = this->all_dest.at(i);
+        // Make sure not in nprime
+        in_nprime = false;
+        for(int j = 0; j < nprime.size(); j++) {
+            if(cur_val == nprime.at(j)) {
+                in_nprime = true;
+                break;
+            }
+        }
 
+        if(!in_nprime) {
+            // Find the current cost to it
+            for(int k = 0; k < this->least_cost_destination.size(); k++) {
+                if(cur_val == std::get<0>(this->least_cost_destination.at(k))) {
+                    cur_cost = std::get<2>(this->least_cost_destination.at(k));
+                }
+            }
+            // See if its smaller
+            if(cur_cost < least_cost) {
+                least_cost = cur_cost;
+                cur_small = cur_val;
+            }
+        }
+
+    }
+    return cur_small;
 }

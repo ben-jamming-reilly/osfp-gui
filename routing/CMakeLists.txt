@@ -10,7 +10,7 @@ set(CMAKE_CURRENT_BINARY_DIR ${CMAKE_CURRENT_LIST_DIR}/build)
 # Download rapidjson for parsing and creating JSON objects
 # for communicating with the node application
 include("${CMAKE_SOURCE_DIR}/CMakeLists.txt.rapidjson")
-include_directories("${CMAKE_BINARY_DIR}/build/rapidjson-prefix/src/rapidjson/include")
+include_directories("${CMAKE_BINARY_DIR}/build/rapidjson-src/include")
 
 # Download and unpack googletest at configure time
 configure_file(CMakeLists.txt.gtest build/googletest-download/CMakeLists.txt)

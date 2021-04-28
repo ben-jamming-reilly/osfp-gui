@@ -442,22 +442,41 @@ TEST(RouterTests, Dijkstras) {
 	std::vector<std::tuple<int, int, unsigned int>> answers;
 	std::tuple<int, int, unsigned int> package;
 
-	// Test with 1 adjacent
+	// Test adjacent
 	RouterLSA lsa = { Link(u, v), INIT_SEQ_NUM, 1};
 	lsdb.add_router_lsa(lsa);
 	router.set_networkLSD(lsdb);
 	router.calculate_dijkstras();
 	package = std::make_tuple(v, u, 1);
     answers.push_back(package);
+	package = std::make_tuple(u, u, 0);
+    answers.push_back(package);
 	ASSERT_EQ(router.get_least_cost_dest(), answers);
 
-	// Test with 2 adjacent
-	lsa = { Link(u, w), INIT_SEQ_NUM, 2};
+	// Test 2 adjacent
+	lsa = { Link(u, w), INIT_SEQ_NUM, 3};
 	lsdb.add_router_lsa(lsa);
 	router.set_networkLSD(lsdb);
 	router.calculate_dijkstras();
-	package = std::make_tuple(w, u, 2);
+	package = std::make_tuple(w, u, 3);
     answers.push_back(package);
+	ASSERT_EQ(router.get_least_cost_dest(), answers);
+
+	std::cout << "Starting current test\n";
+	// Test 1 non-adjacent
+	lsa = { Link(x, w), INIT_SEQ_NUM, 1};
+	lsdb.add_router_lsa(lsa);
+	router.set_networkLSD(lsdb);
+	router.calculate_dijkstras();
+	package = std::make_tuple(x, w, 4);
+    answers.push_back(package);
+	ASSERT_EQ(router.get_least_cost_dest(), answers);
+
+	// Test 2 non-adjacent
+	lsa = { Link(x, v), INIT_SEQ_NUM, 7};
+	lsdb.add_router_lsa(lsa);
+	router.set_networkLSD(lsdb);
+	router.calculate_dijkstras();
 	ASSERT_EQ(router.get_least_cost_dest(), answers);
 
 }
