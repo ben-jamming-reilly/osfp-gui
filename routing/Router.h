@@ -11,6 +11,8 @@ various functions and variables a router would need.
 #include <tuple>
 #include "LSDB.h"
 
+#ifndef ROUTER_H
+#define ROUTER_H
 
 class Router {
     public:
@@ -70,3 +72,5 @@ class Router {
 
 
 };
+
+#endif
