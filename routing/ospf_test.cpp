@@ -286,6 +286,31 @@ TEST(RouterTests, Dijkstras) {
 	package = std::make_tuple(v, u, 1);
     answers.push_back(package);
 	ASSERT_EQ(router->get_least_cost_dest(), answers);
+
+	// Test 2 adjacent
+	RouterLSA lsa = { Link(u, w), INIT_SEQ_NUM, 3};
+	lsdb.add_router_lsa(lsa);
+	router.set_networkLSD(lsdb);
+	router.calculate_dijkstras();
+	package = std::make_tuple(w, u, 3);
+    answers.push_back(package);
+	ASSERT_EQ(router.get_least_cost_dest(), answers);
+
+	// Test 1 non-adjacent
+	RouterLSA lsa = { Link(x, w), INIT_SEQ_NUM, 1};
+	lsdb.add_router_lsa(lsa);
+	router.set_networkLSD(lsdb);
+	router.calculate_dijkstras();
+	package = std::make_tuple(x, w, 4);
+    answers.push_back(package);
+	ASSERT_EQ(router.get_least_cost_dest(), answers);
+
+	// Test 2 non-adjacent
+	RouterLSA lsa = { Link(x, v), INIT_SEQ_NUM, 7};
+	lsdb.add_router_lsa(lsa);
+	router.set_networkLSD(lsdb);
+	router.calculate_dijkstras();
+	ASSERT_EQ(router.get_least_cost_dest(), answers);
 }
 
 int main(int argc, char** argv)
