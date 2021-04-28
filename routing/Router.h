@@ -37,7 +37,7 @@ class Router {
          * table
          * @return lcd
          * */
-        std::vector<std::tuple<int, int, unsigned int>> populate_least_cost_destination();
+        std::vector<std::tuple<int, int, unsigned int>> populate_least_cost_destination(std::vector<int> all_dest);
     
         /**
          * This function calculates Dijkstra's algorithm
@@ -56,7 +56,7 @@ class Router {
          * This generates the forwarding table and returns it in the
          * form of [(destination router, current router, next node)]
          * */
-        std::vector<std::tuple<int, int, unsigned int>> generate_forwarding_table() {}
+        std::vector<std::tuple<int, int, unsigned int>> generate_forwarding_table();
 
         
 
