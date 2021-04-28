@@ -32,7 +32,9 @@ const useWindowSize = () => {
 const RouterDisplay = ({ topology, settings }) => {
   const compRef = useRef(null);
   const winSize = useWindowSize();
+
   const [numRouters, setNumRouters] = useState(topology.size);
+  const [selectedRouter, setSelectedRouter] = useState(0);
   const [arr, setArr] = useState([]);
   const [dim, setDim] = useState({
     height: 0,
@@ -54,6 +56,10 @@ const RouterDisplay = ({ topology, settings }) => {
 
     return () => window.removeEventListener("resize", handleResize);
   }, [winSize, settings]);
+
+  useEffect(() => {
+    setSelectedRouter(settings.selectedRouter);
+  }, [settings.selectedRouter]);
 
   useEffect(() => {
     let newArr = [];
@@ -82,6 +88,7 @@ const RouterDisplay = ({ topology, settings }) => {
             className={`router-${elem}`}
             key={elem}
             name={`${elem}`}
+            selected={selectedRouter === elem}
             x={xCoord((elem - 1) / arr.length, 0.7)}
             y={yCoord((elem - 1) / arr.length, 0.7)}
           />

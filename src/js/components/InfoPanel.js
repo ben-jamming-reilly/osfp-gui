@@ -41,7 +41,12 @@ const InfoPanel = ({ deselectRouter }) => {
       </Card.Header>
       <Card.Body>{isTableView ? <TablesInfo /> : <TopologyInfo />}</Card.Body>
       <Card.Footer className='text-muted text-center my-0 py-1'>
-        <Button variant='outline-danger' onClick={() => deselectRouter()}>
+        <Button
+          variant='outline-danger'
+          onClick={() => {
+            deselectRouter();
+          }}
+        >
           <ArrowBowRight />
         </Button>
       </Card.Footer>

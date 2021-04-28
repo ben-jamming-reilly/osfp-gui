@@ -23,11 +23,11 @@ const App = ({ settings }) => {
   return (
     <Container fluid>
       <Row style={{ height: "87vh" }}>
-        <Col xs={showPanel ? 8 : 12} className='p-0'>
+        <Col xs={showPanel ? 7 : 12} lg={showPanel ? 8 : 12} className='p-0'>
           <RouterDisplay />
         </Col>
         {showPanel && (
-          <Col xs={4} className='bg-light p-1'>
+          <Col xs={5} lg={4} className='bg-light p-1'>
             <InfoPanel />
           </Col>
         )}

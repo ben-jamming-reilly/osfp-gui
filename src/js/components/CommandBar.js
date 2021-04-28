@@ -27,7 +27,7 @@ const CommandBar = ({ addRouter, removeRouter, topology }) => {
           >
             <CirclePlus /> Router
           </Button>
-          {topology.size > 2 && (
+          {topology.size > 3 && (
             <Button
               className='mx-1'
               variant='danger'

@@ -2,56 +2,35 @@ import { ADD_ROUTER, REMOVE_ROUTER, ADJUST_WEIGHTS } from "../actions/types";
 
 const initialState = {
   graph: [
-    {
-      start: 0,
-      end: 1,
-      weight: 1,
-    },
-    {
-      start: 0,
-      end: 2,
-      weight: 2,
-    },
-    {
-      start: 0,
-      end: 3,
-      weight: 3,
-    },
-    {
-      start: 0,
-      end: 4,
-      weight: 4,
-    },
-    {
-      start: 1,
-      end: 2,
-      weight: 5,
-    },
-    {
-      start: 1,
-      end: 3,
-      weight: 6,
-    },
-    {
-      start: 1,
-      end: 4,
-      weight: 7,
-    },
-    {
-      start: 2,
-      end: 3,
-      weight: 8,
-    },
-    {
-      start: 2,
-      end: 4,
-      weight: 9,
-    },
-    {
-      start: 3,
-      end: 4,
-      weight: 10,
-    },
+    [1, 2, 99],
+    [2, 1, 99],
+    //
+    [1, 3, 99],
+    [3, 1, 99],
+    //
+    [1, 4, 99],
+    [4, 1, 99],
+    //
+    [1, 5, 99],
+    [5, 1, 99],
+    //--------
+    [2, 3, 99],
+    [3, 2, 99],
+    //
+    [2, 4, 99],
+    [4, 2, 99],
+    //
+    [2, 5, 99],
+    [5, 2, 99],
+    //--------
+    [3, 4, 99],
+    [4, 3, 99],
+    //
+    [3, 5, 99],
+    [5, 3, 99],
+    //--------
+    [4, 5, 99],
+    [5, 4, 99],
   ],
   size: 5,
 };
@@ -62,18 +41,18 @@ function topologyReducer(state = initialState, action) {
   switch (type) {
     case ADD_ROUTER:
       return {
-        ...state, //graph: payload.graph,
+        graph: payload,
         size: state.size + 1,
       };
     case REMOVE_ROUTER:
       return {
-        ...state, //graph: payload.graph,
+        graph: payload,
         size: state.size - 1,
       };
     case ADJUST_WEIGHTS:
       return {
         ...state,
-        graph: payload.graph,
+        graph: payload,
       };
     default:
       return state;

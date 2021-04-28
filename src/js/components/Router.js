@@ -8,7 +8,7 @@ import Row from "react-bootstrap/Row";
 
 import { selectRouter } from "../actions/settings";
 
-const Router = ({ selectRouter, x, y, name }) => {
+const Router = ({ selectRouter, x, y, name, selected }) => {
   const compRef = useRef(null);
 
   useEffect(() => {
@@ -25,10 +25,9 @@ const Router = ({ selectRouter, x, y, name }) => {
           style={{ height: "50px", width: "50px", zIndex: "100" }}
         >
           <Button
-            className=''
-            variant='primary'
-            style={{ borderRadius: "50px" }}
-            onClick={() => selectRouter()}
+            variant={selected ? "danger" : "primary"}
+            style={{ borderRadius: "10px" }}
+            onClick={() => selectRouter(name)}
           >
             <Row className='justify-content-center'>
               {name}
