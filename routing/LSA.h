@@ -33,6 +33,17 @@ public:
             }
         }
     }
+
+    // Returns the src id
+    int get_src_id() {
+        return this->SRC_ID;
+    }
+
+    // Returns the dest id
+    int get_dest_id() {
+        return this->DST_ID;
+    }
+
 private:
     int SRC_ID;
     int DST_ID;

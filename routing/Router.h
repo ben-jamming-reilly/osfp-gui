@@ -9,7 +9,7 @@ various functions and variables a router would need.
 #include <vector>
 #include <bits/stdc++.h>
 #include <tuple>
-
+#include "LSDB.h"
 
 class Router {
     public:
@@ -20,36 +20,27 @@ class Router {
             return this->routerID;
         }
 
-        void lsac() {}
+        void set_networkLSD(LSDB network) {
+            this->networkLSA = network;
+        }
+
+        std::vector<std::tuple<int, int, unsigned int>> get_least_cost_dest() {
+            return this->least_cost_destination;
+        }
+
 
         /**
          * This function calculates starting values for the least_cost_destination
          * table
          * @return lcd
          * */
-        std::vector<std::tuple<int, int, unsigned int>> populate_least_cost_destination();
-
-        /**
-         * Generates a list of all destinations
-         * @return array of router ID destinations, this router included
-         * */
-        std::vector<int> generate_all_destinations(std::vector<int> all_dest) {
-            return std::vector<int>(this->routerID);
-        }
+        std::vector<std::tuple<int, int, unsigned int>> populate_least_cost_destination(std::vector<int> all_dest);
     
         /**
          * This function calculates Dijkstra's algorithm
          * Note: It modifies the least_cost_destination
          * */
         void calculate_dijkstras();
-
-        /**
-         * Finds connections with the inputted router and returns them
-         * FIXME do when get LSA info back
-         * @param int router
-         * @return vector list of pair (routerID, cost)
-         * */
-        std::vector<std::pair<int, int>> find_connections_with(int router);
 
         /**
          * Computes the destination with the lowest cost not in nprime and returns it
@@ -62,16 +53,15 @@ class Router {
          * This generates the forwarding table and returns it in the
          * form of [(destination router, current router, next node)]
          * */
-        std::vector<std::tuple<int, int, unsigned int>> generate_forwarding_table() {}
+        std::vector<std::tuple<int, int, unsigned int>> generate_forwarding_table();
 
         
 
     private:
-        std::vector<std::pair<Router, int>> neighbors;
         int routerID;
         std::vector<int> all_dest;
         // routerLSA;
-        // networkLSA;
+        LSDB networkLSA;
         // Of form (dest node, prev node, node cost)
         std::vector<std::tuple<int, int, unsigned int>> least_cost_destination;
         const int inf = 65535;
