@@ -2,7 +2,7 @@
 #include <algorithm>
 
 #include "router_json_parser.h"
-#include "ospf.h"
+#include "../ospf.h"
 
 std::vector< std::vector<int> > parseNetworkTopology(std::string json)
 {

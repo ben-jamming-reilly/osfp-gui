@@ -438,18 +438,18 @@ TEST(RouterTests, Djikstras) {
 	};
 
 	LSDB lsdb;
-	Router* router = new Router(u);
+	Router router(u);
 	std::vector<std::tuple<int, int, unsigned int>> answers;
 	std::tuple<int, int, unsigned int> package;
 
 	
 	RouterLSA lsa = { Link(u, v), INIT_SEQ_NUM, 1};
 	lsdb.add_router_lsa(lsa);
-	router->set_networkLSD(lsdb);
-	router->calculate_dijkstras();
+	router.calculate_dijkstras();
+	router.calculate_dijkstras();
 	package = std::make_tuple(v, u, 1);
     answers.push_back(package);
-	ASSERT_EQ(router->get_least_cost_dest(), answers);
+	ASSERT_EQ(router.get_least_cost_dest(), answers);
 }
 
 int main(int argc, char** argv)

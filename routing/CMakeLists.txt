@@ -49,7 +49,7 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_LIST_DIR})
 include_directories("${CMAKE_BINARY_DIR}/native_ospf")
 
 # build and link executable
-add_executable(ospf_test.out ospf_test.cpp ospf.cpp native_ospf/router_json_parser.cpp)
+add_executable(ospf_test.out ospf_test.cpp ospf.cpp Router.cpp LSDB.cpp native_ospf/router_json_parser.cpp)
 add_dependencies(ospf_test.out rapidjson)
 target_link_libraries(ospf_test.out gtest gtest_main)
 include(GoogleTest)

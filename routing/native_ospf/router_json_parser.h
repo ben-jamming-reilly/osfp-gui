@@ -5,7 +5,7 @@
 #include <cstdlib>
 #include <string>
 #include <iostream>
-#include "ospf.h"
+#include "../ospf.h"
 #include "rapidjson/document.h"
 #include "rapidjson/writer.h"
 #include "rapidjson/stringbuffer.h"
