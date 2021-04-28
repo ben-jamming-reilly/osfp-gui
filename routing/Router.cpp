@@ -46,31 +46,22 @@ void Router::calculate_dijkstras() {
         if(cur_w == this->routerID) {
             break;
         }
-        for(int j = 0; j < nprime.size(); j++) {
-            std::cout << nprime.at(j);
-        }
-        std::cout << std::endl;
         nprime.push_back(cur_w);
-        for(int j = 0; j < nprime.size(); j++) {
-            std::cout << nprime.at(j);
-        }
-        std::cout << std::endl;
-        std::cout << "cur w: " << cur_w << std::endl;
 
         // Find all connections with cur_w that aren't already in nprime
-        std::vector<std::pair<int, int>> connected_routers = this->networkLSA.find_connections_with(cur_w);
-        // Remove ones already in nprime
+        std::vector<std::pair<int, int>> connected_routers;
+        std::vector<std::pair<int, int>> connected_routers_all = this->networkLSA.find_connections_with(cur_w);
+        
         for(int i = 0; i < nprime.size(); i++) {
-            for(int j = 0; j < connected_routers.size(); j++) {
-                if(nprime.at(i) == connected_routers.at(i).first) {
-                    connected_routers.erase(connected_routers.begin()+j); // erase jth element
-                    j--;
-                }
-                else {
-                    std::cout << connected_routers.at(i).first << connected_routers.at(i).second << std::endl;
+            for(int j = 0; j < connected_routers_all.size(); j++) {
+    
+                if(nprime.at(i) != connected_routers_all.at(j).first) {
+                    connected_routers.push_back(connected_routers_all.at(j));
+
                 }
             }
         }
+        
 
 
         // Find current cost to cur_w
@@ -81,6 +72,7 @@ void Router::calculate_dijkstras() {
                 break;
             }
         }
+        
 
 
         // Update according to the equation D(v) = min(D(v), D(w) + c(w, v))
@@ -90,7 +82,7 @@ void Router::calculate_dijkstras() {
             int cwy = this->inf;
             for(int j = 0; j < connected_routers.size(); j++) {
                 if(v == connected_routers.at(j).first) {
-                    cwy = connected_routers.at(i).second;
+                    cwy = connected_routers.at(j).second;
                     break;
                 }
             }

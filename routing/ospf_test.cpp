@@ -462,7 +462,6 @@ TEST(RouterTests, Dijkstras) {
     answers.push_back(package);
 	ASSERT_EQ(router.get_least_cost_dest(), answers);
 
-	std::cout << "Starting current test\n";
 	// Test 1 non-adjacent
 	lsa = { Link(x, w), INIT_SEQ_NUM, 1};
 	lsdb.add_router_lsa(lsa);
