@@ -264,7 +264,7 @@ TEST(LSDBTest, find_connections_with) {
 
 }
 
-TEST(RouterTests, Djikstras) {
+TEST(RouterTests, Dijkstras) {
 	enum node
 	{
 		u = 0,
@@ -278,7 +278,7 @@ TEST(RouterTests, Djikstras) {
 	std::vector<std::tuple<int, int, unsigned int>> answers;
 	std::tuple<int, int, unsigned int> package;
 
-	
+	// Test with 1
 	RouterLSA lsa = { Link(u, v), INIT_SEQ_NUM, 1};
 	lsdb.add_router_lsa(lsa);
 	router->set_networkLSD(lsdb);
