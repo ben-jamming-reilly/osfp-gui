@@ -5,10 +5,15 @@ project(ospf_tests)
 # GoogleTest requires at least C++11
 set(CMAKE_CXX_STANDARD 11)
 
-set(CMAKE_CURRENT_BINARY_DIR ${CMAKE_CURRENT_LIST_DIR}/build)
+set(CMAKE_CURRENT_BINARY_DIR ${CMAKE_CURRENT_LIST_DIR}/build) 
+
+# Download rapidjson for parsing and creating JSON objects
+# for communicating with the node application
+include("${CMAKE_SOURCE_DIR}/CMakeLists.txt.rapidjson")
+include_directories("${CMAKE_BINARY_DIR}/build/rapidjson-prefix/src/rapidjson/include")
 
 # Download and unpack googletest at configure time
-configure_file(CMakeLists.txt.in build/googletest-download/CMakeLists.txt)
+configure_file(CMakeLists.txt.gtest build/googletest-download/CMakeLists.txt)
 execute_process(COMMAND "${CMAKE_COMMAND}" -G "${CMAKE_GENERATOR}" .
     WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/build/googletest-download"
 )
@@ -35,14 +40,17 @@ if(CMAKE_VERSION VERSION_LESS 2.8.11)
     )
 endif()
 
-
 enable_testing()
 
 # output executable in routing/ directory
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_LIST_DIR})
 
+# make sure CMake can find all of the files
+include_directories("${CMAKE_BINARY_DIR}/native_ospf")
+
 # build and link executable
-add_executable(ospf_test.out ospf_test.cpp ospf.cpp)
+add_executable(ospf_test.out ospf_test.cpp ospf.cpp Router.cpp LSDB.cpp native_ospf/router_json_parser.cpp)
+add_dependencies(ospf_test.out rapidjson)
 target_link_libraries(ospf_test.out gtest gtest_main)
 include(GoogleTest)
 gtest_discover_tests(ospf_test.out)
