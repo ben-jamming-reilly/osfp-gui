@@ -7,7 +7,9 @@ function createWindow() {
   const win = new BrowserWindow({
     width: "1200",
     height: "800",
-    backgroundColor: "grey",
+    minWidth: 750,
+    minHeight: 600,
+    backgroundColor: "white",
     webPreferences: {
       nodeIntegration: false,
       worldSafeExecuteJavaScript: true,

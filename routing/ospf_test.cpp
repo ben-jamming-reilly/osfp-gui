@@ -1,13 +1,170 @@
 #include <iostream>
+#include <vector>
+#include <string>
 #include <gtest/gtest.h>
 #include "Router.h"
 #include "LSDB.h"
 #include "LSA.h"
+#include "native_ospf/router_json_parser.h"
+#include "ospf.h"
+#include "rapidjson/document.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/stringbuffer.h"
 
 TEST(InitTest, InitTest)
 {
 	// Used to check if GTest is configured properly
 	EXPECT_EQ(1, 1);
+}
+
+TEST(RapidJsonTest, DetectingParsingErrors)
+{
+	rapidjson::Document document;
+	
+	const char good_json[] = "{\"array\":[-1,0,1.5]}";
+	ASSERT_FALSE(document.Parse(good_json).HasParseError());
+
+	const char bad_json[] = "{\"array\":[-1,0,1.5,]}";
+	ASSERT_TRUE(document.Parse(bad_json).HasParseError());
+}
+
+TEST(RapidJsonTest, ParsingArrays)
+{
+	const char json[] = "{\"array\":[-1,0,1.5]}";
+
+	rapidjson::Document document;
+
+	// ParseInsitu expects dynamically allocated char*
+	char buffer[sizeof(json)];
+    memcpy(buffer, json, sizeof(json));
+
+	// parse json
+	document.ParseInsitu(buffer);
+
+    ASSERT_FALSE(document.HasParseError());
+	ASSERT_TRUE(document.IsObject());
+	ASSERT_TRUE(document.HasMember("array"));
+	
+	const rapidjson::Value& array = document["array"];
+	ASSERT_TRUE(array.IsArray());
+}
+
+TEST(RapidJsonTest, ParsingStrings)
+{
+	const char json[] = "{\"key0\":\"value0\",\"key1\":\"value1\"}";
+
+	// ParseInsitu expects dyanmically allocated char*
+	char buffer[sizeof(json)];
+	memcpy(buffer, json, sizeof(json));
+
+	// parse json
+	rapidjson::Document document;
+	document.ParseInsitu(buffer);
+
+	ASSERT_FALSE(document.HasParseError());
+	ASSERT_TRUE(document.IsObject());
+	ASSERT_TRUE(document.HasMember("key0"));
+	ASSERT_STREQ(document["key0"].GetString(), "value0");
+	ASSERT_TRUE(document.HasMember("key1"));
+	ASSERT_STREQ(document["key1"].GetString(), "value1");
+}
+
+TEST(RapidJsonTest, ParsingNetworkTopology)
+{
+	std::vector< std::vector<int> > network_topology;
+	std::string json = "{\"networkTopology\":[[0,1,5],[1,0,5],[0,2,11],[2,0,11],[1,2,1],[2,1,1]]}";
+
+	network_topology = parseNetworkTopology(json);
+
+	ASSERT_EQ(network_topology.at(0).at(0), 0);
+	ASSERT_EQ(network_topology.at(0).at(1), 1);
+	ASSERT_EQ(network_topology.at(0).at(2), 5);
+	ASSERT_EQ(network_topology.at(1).at(0), 1);
+	ASSERT_EQ(network_topology.at(1).at(1), 0);
+	ASSERT_EQ(network_topology.at(1).at(2), 5);
+	ASSERT_EQ(network_topology.at(2).at(0), 0);
+	ASSERT_EQ(network_topology.at(2).at(1), 2);
+	ASSERT_EQ(network_topology.at(2).at(2), 11);
+	ASSERT_EQ(network_topology.at(3).at(0), 2);
+	ASSERT_EQ(network_topology.at(3).at(1), 0);
+	ASSERT_EQ(network_topology.at(3).at(2), 11);
+	ASSERT_EQ(network_topology.at(4).at(0), 1);
+	ASSERT_EQ(network_topology.at(4).at(1), 2);
+	ASSERT_EQ(network_topology.at(4).at(2), 1);
+	ASSERT_EQ(network_topology.at(5).at(0), 2);
+	ASSERT_EQ(network_topology.at(5).at(1), 1);
+	ASSERT_EQ(network_topology.at(5).at(2), 1);
+}
+
+TEST(RapidJsonTest, ParsingRouterIDs)
+{
+	std::vector< std::vector<int> > network_topology;
+	std::vector<int> routerIDs;
+	std::string json = "{\"networkTopology\":[[0,1,5],[1,0,5],[0,2,11],[2,0,11],[1,2,1],[2,1,1]]}";
+
+	network_topology = parseNetworkTopology(json);
+	routerIDs = parseRouterIDs(network_topology);
+
+	ASSERT_EQ(routerIDs.size(), 3);
+	ASSERT_EQ(std::count(routerIDs.begin(), routerIDs.end(), 0), 1);
+	ASSERT_EQ(std::count(routerIDs.begin(), routerIDs.end(), 1), 1);
+	ASSERT_EQ(std::count(routerIDs.begin(), routerIDs.end(), 2), 1);
+}
+
+TEST(RapidJsonTest, ComposingForwardingTable)
+{
+	// forwarding table for nodes 0,1,2 in the following network topology:
+	//			[1]
+	//		 5 /   \ 1
+	//		[0]-----[2]
+	//			 11
+	ForwardingTable firstForwardingTable = {
+		{0, 0, 0},
+		{1, 0, 5},
+		{2, 1, 6}
+	};
+
+	ForwardingTable secondForwardingTable = {
+		{0, 0, 5},
+		{1, 1, 0},
+		{2, 2, 1}
+	};
+
+	ForwardingTable thirdForwardingTable = {
+		{0, 1, 6},
+		{1, 1, 1},
+		{2, 2, 0}
+	};
+
+	std::vector<ForwardingTable> forwardingTables = {
+		firstForwardingTable,
+		secondForwardingTable,
+		thirdForwardingTable
+	};
+
+	std::vector<int> routerIDs = {0, 1, 2};
+	std::string composed_json = composeForwardingTable(forwardingTables, routerIDs);
+	std::string correct_json = "{\"forwardingTable\":{\"0\":[[0,0,0],[1,0,5],[2,1,6]],\"1\":[[0,0,5],[1,1,0],[2,2,1]],\"2\":[[0,1,6],[1,1,1],[2,2,0]]}}";
+	
+	ASSERT_EQ(composed_json, correct_json);
+}
+
+TEST(RapidJsonTest, ComposeLowestCostPathsTable)
+{
+	// lowest cost table for the following network topology:
+	//			[1]
+	//		 5 /   \ 1
+	//		[0]-----[2]
+	//			 11
+	std::vector< std::vector<std::string> > leastCostPathsTable(3);
+	leastCostPathsTable.at(0) = {"0,0", "0,1", "0,1,2"};
+	leastCostPathsTable.at(1) = {"1,0", "1,1", "1,2"};
+	leastCostPathsTable.at(2) = {"2,1,0", "2,1", "2,2"};
+
+	std::string composed_json = composeLeastCostPathsTable(leastCostPathsTable);
+	std::string correct_json = "{\"lowestCostPaths\":{\"0\":{\"0\":\"0,0\",\"1\":\"0,1\",\"2\":\"0,1,2\"},\"1\":{\"0\":\"1,0\",\"1\":\"1,1\",\"2\":\"1,2\"},\"2\":{\"0\":\"2,1,0\",\"1\":\"2,1\",\"2\":\"2,2\"}}}";
+	
+	ASSERT_EQ(composed_json, correct_json);
 }
 
 TEST(LSDBTest, AddRouterLSATest)
@@ -198,6 +355,13 @@ TEST(LSDBTest, UpdateDatabase)
 	ASSERT_EQ(lsa_list.at(2).SEQ_NUM, INIT_SEQ_NUM+1);
 }
 
+TEST(RouterTest, RouterID)
+{
+	// initialize Router
+	Router router(99);
+	ASSERT_EQ(router.getID(), 99);
+}
+
 TEST(LSDBTest, get_all_destinations) {
 	enum node
 	{
@@ -274,11 +438,11 @@ TEST(RouterTests, Dijkstras) {
 	};
 
 	LSDB lsdb;
-	Router* router = new Router(u);
+	Router router(u);
 	std::vector<std::tuple<int, int, unsigned int>> answers;
 	std::tuple<int, int, unsigned int> package;
 
-	// Test with 1
+	// Test adjacent
 	RouterLSA lsa = { Link(u, v), INIT_SEQ_NUM, 1};
 	lsdb.add_router_lsa(lsa);
 	router->set_networkLSD(lsdb);
@@ -290,27 +454,27 @@ TEST(RouterTests, Dijkstras) {
 	// Test 2 adjacent
 	RouterLSA lsa = { Link(u, w), INIT_SEQ_NUM, 3};
 	lsdb.add_router_lsa(lsa);
-	router.set_networkLSD(lsdb);
-	router.calculate_dijkstras();
+	router->set_networkLSD(lsdb);
+	router->calculate_dijkstras();
 	package = std::make_tuple(w, u, 3);
     answers.push_back(package);
-	ASSERT_EQ(router.get_least_cost_dest(), answers);
+	ASSERT_EQ(router->get_least_cost_dest(), answers);
 
 	// Test 1 non-adjacent
 	RouterLSA lsa = { Link(x, w), INIT_SEQ_NUM, 1};
 	lsdb.add_router_lsa(lsa);
-	router.set_networkLSD(lsdb);
-	router.calculate_dijkstras();
+	router->set_networkLSD(lsdb);
+	router->calculate_dijkstras();
 	package = std::make_tuple(x, w, 4);
     answers.push_back(package);
-	ASSERT_EQ(router.get_least_cost_dest(), answers);
+	ASSERT_EQ(router->get_least_cost_dest(), answers);
 
 	// Test 2 non-adjacent
 	RouterLSA lsa = { Link(x, v), INIT_SEQ_NUM, 7};
 	lsdb.add_router_lsa(lsa);
-	router.set_networkLSD(lsdb);
-	router.calculate_dijkstras();
-	ASSERT_EQ(router.get_least_cost_dest(), answers);
+	router->set_networkLSD(lsdb);
+	router->calculate_dijkstras();
+	ASSERT_EQ(router->get_least_cost_dest(), answers);
 }
 
 int main(int argc, char** argv)

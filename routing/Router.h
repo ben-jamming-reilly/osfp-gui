@@ -11,7 +11,6 @@ various functions and variables a router would need.
 #include <tuple>
 #include "LSDB.h"
 
-
 class Router {
     public:
         Router(int routerID) {
@@ -35,7 +34,7 @@ class Router {
          * table
          * @return lcd
          * */
-        std::vector<std::tuple<int, int, unsigned int>> populate_least_cost_destination();
+        std::vector<std::tuple<int, int, unsigned int>> populate_least_cost_destination(std::vector<int> all_dest);
     
         /**
          * This function calculates Dijkstra's algorithm
@@ -54,7 +53,7 @@ class Router {
          * This generates the forwarding table and returns it in the
          * form of [(destination router, current router, next node)]
          * */
-        std::vector<std::tuple<int, int, unsigned int>> generate_forwarding_table() {}
+        std::vector<std::tuple<int, int, unsigned int>> generate_forwarding_table();
 
         
 
@@ -66,7 +65,4 @@ class Router {
         // Of form (dest node, prev node, node cost)
         std::vector<std::tuple<int, int, unsigned int>> least_cost_destination;
         const int inf = 65535;
- 
-
-
 };
