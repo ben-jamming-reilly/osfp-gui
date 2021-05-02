@@ -510,7 +510,7 @@ TEST(RouterTests, forwarding_table) {
 	lsdb.add_router_lsa(lsa);
 	router.set_networkLSD(lsdb);
 	router.calculate_dijkstras();
-	package = std::make_tuple(w, u, 1);
+	package = std::make_tuple(w, w, 3);
     answers.push_back(package);
 	ASSERT_EQ(router.generate_forwarding_table(), answers);
 
@@ -519,7 +519,7 @@ TEST(RouterTests, forwarding_table) {
 	lsdb.add_router_lsa(lsa);
 	router.set_networkLSD(lsdb);
 	router.calculate_dijkstras();
-	package = std::make_tuple(w, u, 1);
+	package = std::make_tuple(x, w, 4);
     answers.push_back(package);
 	ASSERT_EQ(router.generate_forwarding_table(), answers);
 
