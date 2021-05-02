@@ -54,10 +54,18 @@ class Router {
         int compute_lowest_dv(std::vector<int> nprime);
 
         /**
+         * This generates the shortest paths to a given distination
+         * @return vector (vector(start, ..., end, cost))
+         * */
+        std::vector<std::vector<unsigned int>> generate_shortest_paths();
+
+        /**
          * This generates the forwarding table and returns it in the
-         * form of [(destination router, current router, next node)]
+         * @return [(destination router, first hop router, cost)]
          * */
         std::vector<std::tuple<int, int, unsigned int>> generate_forwarding_table();
+
+        
 
         
 

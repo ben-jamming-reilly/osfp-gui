@@ -132,3 +132,56 @@ int Router::compute_lowest_dv(std::vector<int> nprime)
     }
     return cur_small;
 }
+
+std::vector<std::vector<unsigned int>> Router::generate_shortest_paths() {
+    std::vector<std::vector<unsigned int>> all_paths;
+    int prev_val = this->routerID;
+
+    for(int i = 0; i < this->all_dest.size(); i++) {
+        unsigned int dest = static_cast<unsigned int>(this->all_dest.at(i));
+        std::vector<unsigned int> path;
+        path.push_back(dest);
+        unsigned int cost = this->inf;
+        
+        do {
+            // Find previous value
+            for(int j = 0; j < this->least_cost_destination.size(); j++) {
+                if(std::get<0>(this->least_cost_destination.at(j)) == dest) {
+                    // If original dest copy the cost
+                    if(dest == this->all_dest.at(i)) {
+                        cost = std::get<2>(this->least_cost_destination.at(j));
+                    }
+                    // have the previous value be the new destination
+
+                    dest = std::get<1>(this->least_cost_destination.at(j));
+                    // Also grab that router
+                    path.push_back(dest);
+                }
+            }
+        } while(dest != this->routerID);
+        all_paths.push_back(path);
+
+    }
+    return all_paths;
+}
+
+std::vector<std::tuple<int, int, unsigned int>> Router::generate_forwarding_table() {
+    std::vector<std::vector<unsigned int>> all_paths = this->generate_shortest_paths();
+    std::vector<std::tuple<int, int, unsigned int>> table;
+
+    // For each path
+    for(int i = 0; i < all_paths.size(); i++) {
+        for(int j = 0; j < all_paths.at(i).size()) {
+            std::cout << all_paths.at(i).at(j) << " ";
+        }
+        std::cout << std::endl;
+
+        int size = all_paths.at(i).size();
+        int hop_router = static_cast<int>(all_paths.at(i).at(0));
+        int dest = static_cast<int>(all_paths.at(i).at(1));
+        unsigned int cost = all_paths.at(i).at(size - 1);
+        table.push_back(std::make_tuple(dest, hop_router, cost));
+
+    }
+    return table;
+}

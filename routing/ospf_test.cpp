@@ -480,6 +480,57 @@ TEST(RouterTests, Dijkstras) {
 
 }
 
+TEST(RouterTests, forwarding_table) {
+		enum node
+	{
+		u = 0,
+		v = 1,
+		w = 2,
+		x = 3
+	};
+
+	LSDB lsdb;
+	Router router(u);
+	std::vector<std::tuple<int, int, unsigned int>> answers;
+	std::tuple<int, int, unsigned int> package;
+
+	// Test adjacent
+	RouterLSA lsa = { Link(u, v), INIT_SEQ_NUM, 1};
+	lsdb.add_router_lsa(lsa);
+	router.set_networkLSD(lsdb);
+	router.calculate_dijkstras();
+	package = std::make_tuple(v, v, 1);
+    answers.push_back(package);
+	package = std::make_tuple(u, u, 0);
+    answers.push_back(package);
+	ASSERT_EQ(router.generate_forwarding_table(), answers);
+	
+	// Test multiple adjacent
+	lsa = { Link(u, w), INIT_SEQ_NUM, 3};
+	lsdb.add_router_lsa(lsa);
+	router.set_networkLSD(lsdb);
+	router.calculate_dijkstras();
+	package = std::make_tuple(w, u, 1);
+    answers.push_back(package);
+	ASSERT_EQ(router.generate_forwarding_table(), answers);
+
+	// Test 1 non-adjacent
+	lsa = { Link(x, w), INIT_SEQ_NUM, 1};
+	lsdb.add_router_lsa(lsa);
+	router.set_networkLSD(lsdb);
+	router.calculate_dijkstras();
+	package = std::make_tuple(w, u, 1);
+    answers.push_back(package);
+	ASSERT_EQ(router.generate_forwarding_table(), answers);
+
+	// Test 2 non-adjacent
+	lsa = { Link(x, v), INIT_SEQ_NUM, 7};
+	lsdb.add_router_lsa(lsa);
+	router.set_networkLSD(lsdb);
+	router.calculate_dijkstras();
+	ASSERT_EQ(router.generate_forwarding_table(), answers);
+}
+
 int main(int argc, char** argv)
 {
 	testing::InitGoogleTest(&argc, argv);
