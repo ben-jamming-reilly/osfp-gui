@@ -4,7 +4,9 @@
 #include <vector>
 #include <algorithm>
 #include <iostream>
+#include "Router.h"
 
 typedef std::vector< std::vector<int> > ForwardingTable;
+std::vector<Router> synchronize_routers(std::vector< std::vector<int> >);
 
 #endif

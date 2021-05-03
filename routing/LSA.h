@@ -35,13 +35,26 @@ public:
     }
 
     // Returns the src id
-    int get_src_id() {
+    int get_src_id() const
+    {
         return this->SRC_ID;
     }
 
     // Returns the dest id
-    int get_dest_id() {
+    int get_dest_id() const
+    {
         return this->DST_ID;
+    }
+
+    bool operator== (const Link& rhs) const
+    {
+        return (this->SRC_ID == rhs.get_src_id()) &&
+               (this->DST_ID == rhs.get_dest_id());
+    }
+
+    bool operator!= (const Link& rhs) const
+    {
+        return !(*this == rhs);
     }
 
 private:

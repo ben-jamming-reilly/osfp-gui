@@ -531,6 +531,64 @@ TEST(RouterTests, forwarding_table) {
 	ASSERT_EQ(router.generate_forwarding_table(), answers);
 }
 
+TEST(RouterTests, FormingAdjacencies)
+{
+	// forming adjacencies for the following network topology:
+	//			[1]
+	//		 5 /   \ 1
+	//		[0]-----[2]
+	//			 11
+
+	std::vector< std::vector<int> > network_topology;
+	std::string json = "{\"networkTopology\":[[0,1,5],[1,0,5],[0,2,11],[2,0,11],[1,2,1],[2,1,1]]}";
+
+	network_topology = parseNetworkTopology(json);
+
+	std::vector<Router> routers = synchronize_routers(network_topology);
+
+	/* uncomment to see LSDBs printed out yourself
+	for (int i = 0; i < 3; ++i)
+	{
+		std::cout << "Router [" << i << "] LSDB:" << std::endl << std::endl;
+		routers.at(i).print();
+	}
+	*/
+
+	ASSERT_TRUE(routers.at(0).adjacent(routers.at(1)));
+	ASSERT_TRUE(routers.at(1).adjacent(routers.at(2)));
+}
+
+TEST(RouterTests, FormingAdjacenciesComplicatedTopology)
+{
+	// forming adjacencies for the following network topology:
+	//			[1]
+	//		 5 /   \ 1
+	//		[0]-----[2]
+	//			 11
+
+	std::vector< std::vector<int> > network_topology;
+	std::vector<int> router_ids;
+	std::string json = "{\"networkTopology\":[[0,1,2],[1,0,2],[0,2,5],[2,0,5],[0,3,1],[3,0,1],[1,3,2],[3,1,2],[1,2,3],[2,1,3],[3,2,3],[2,3,3],[3,4,1],[4,3,1],[2,4,1],[4,2,1],[2,5,5],[5,2,5],[4,5,2],[5,4,2]]}";
+
+	network_topology = parseNetworkTopology(json);
+	router_ids = parseRouterIDs(network_topology);
+
+	std::vector<Router> routers = synchronize_routers(network_topology);
+
+	/* uncomment to see LSDBs printed out yourself
+	for (int i = 0; i < 3; ++i)
+	{
+		std::cout << "Router [" << i << "] LSDB:" << std::endl << std::endl;
+		routers.at(i).print();
+	}
+	*/
+
+	for (int i = 0; i < router_ids.size() - 1; ++i)
+	{
+		ASSERT_TRUE(routers.at(i).adjacent(routers.at(i+1)));	
+	}
+}
+
 int main(int argc, char** argv)
 {
 	testing::InitGoogleTest(&argc, argv);

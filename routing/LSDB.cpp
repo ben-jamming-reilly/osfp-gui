@@ -15,7 +15,7 @@ void LSDB::add_router_lsa(RouterLSA lsa)
     }
 }
 
-bool LSDB::router_lsa_exists(RouterLSA lsa)
+bool LSDB::router_lsa_exists(RouterLSA lsa) const
 {
     bool retVal = false;
 
@@ -30,12 +30,12 @@ bool LSDB::router_lsa_exists(RouterLSA lsa)
 }
 
 // sort LSAs by link into a vector and return
-std::vector<RouterLSA> LSDB::advertise_database()
+std::vector<RouterLSA> LSDB::advertise_database() const
 {
     std::vector<RouterLSA> retVal(this->router_lsdb.size());
 
     int i = 0;
-    for (std::map<Link, RouterLSA>::iterator lsa = this->router_lsdb.begin();
+    for (std::map<Link, RouterLSA>::const_iterator lsa = (this->router_lsdb).begin();
          lsa != this->router_lsdb.end(); ++lsa)
     {
         retVal.at(i) = lsa->second;
@@ -69,7 +69,7 @@ void LSDB::clear()
     this->router_lsdb.clear();
 }
 
-size_t LSDB::size()
+size_t LSDB::size() const
 {
     return this->router_lsdb.size();
 }
@@ -77,11 +77,12 @@ size_t LSDB::size()
 // Finds all the unique destinations and returns them
 // Inputs: None
 // Outputs: all destinations
-std::vector<int> LSDB::get_all_destinations() {
+std::vector<int> LSDB::get_all_destinations() const
+{
     std::vector<int> routers;
 
     // For every connection
-    for (std::map<Link, RouterLSA>::iterator lsa = this->router_lsdb.begin();
+    for (std::map<Link, RouterLSA>::const_iterator lsa = (this->router_lsdb).begin();
          lsa != this->router_lsdb.end(); ++lsa)
     {
         int dest = lsa->second.LINK.get_dest_id();
@@ -111,13 +112,14 @@ std::vector<int> LSDB::get_all_destinations() {
 // Finds connections with the inputted router and returns them
 // @param int router
 // @return vector list of pair (routerID, cost)
-std::vector<std::pair<int, int>> LSDB::find_connections_with(int router) {
+std::vector<std::pair<int, int>> LSDB::find_connections_with(int router) const
+{
     std::vector<std::pair<int, int>> connections;
     int link;
     int cost;
 
     // For every connection
-    for (std::map<Link, RouterLSA>::iterator lsa = this->router_lsdb.begin();
+    for (std::map<Link, RouterLSA>::const_iterator lsa = (this->router_lsdb).begin();
          lsa != this->router_lsdb.end(); ++lsa)
     {
         link = -1;
@@ -140,4 +142,51 @@ std::vector<std::pair<int, int>> LSDB::find_connections_with(int router) {
         }
     }
     return connections;
+}
+
+// Returns a list of router IDs that are known neighbors
+// Inputs: None
+// Outputs: Router IDs of adjacent routers
+std::vector<int> LSDB::neighbors(int router_id) const
+{
+    std::vector<int> retVal;
+
+    RouterLSA router_lsa;
+
+    for (std::map<Link, RouterLSA>::const_iterator lsa = (this->router_lsdb).begin();
+         lsa != (this->router_lsdb).end(); ++lsa)
+    {
+        router_lsa = lsa->second;
+        if (router_lsa.LINK.get_src_id() == router_id)
+        {
+            // destination is neighbor, add to list
+            retVal.push_back(router_lsa.LINK.get_dest_id());
+        } else if (router_lsa.LINK.get_dest_id() == router_id)
+        {
+            // source is neighbor, add to list
+            retVal.push_back(router_lsa.LINK.get_src_id());
+        }
+    }
+
+    return retVal;
+}
+
+// Print database in friendly formatting
+// Inputs: None
+// Outputs: None
+void LSDB::print() const
+{
+    // print headers
+    std::cout << "[SRC. ROUTER ID] [DST. ROUTER ID] [SEQUENCE NUMBER] [LINK COST]";
+    std::cout << std::endl;
+    for (std::map<Link,RouterLSA>::const_iterator lsa = (this->router_lsdb).begin();
+         lsa != (this->router_lsdb).end(); ++lsa)
+    {
+        std::cout << "\t" << (lsa->second).LINK.get_src_id();
+        std::cout << "\t\t" << (lsa->second).LINK.get_dest_id();
+        std::cout << "\t      0x" << std::hex << (lsa->second).SEQ_NUM;
+        std::cout << std::dec;
+        std::cout << "\t " << (lsa->second).LINK_COST;
+        std::cout << std::endl << std::endl;
+    }
 }
