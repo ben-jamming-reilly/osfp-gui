@@ -51,7 +51,7 @@ void LSDB::update_database(std::vector<RouterLSA> advertised_database)
     // iterate through database
     RouterLSA new_lsa;
 
-    for (int i = 0; i < advertised_database.size(); ++i)
+    for (size_t i = 0; i < advertised_database.size(); ++i)
     {
         new_lsa = advertised_database.at(i);
 
@@ -90,7 +90,7 @@ std::vector<int> LSDB::get_all_destinations() const
         int src = lsa->second.LINK.get_src_id();
         bool new_src = true;
         // Find unique router IDs
-        for(int i = 0; i < routers.size(); i++) {
+        for(size_t i = 0; i < routers.size(); i++) {
             if(dest == routers.at(i)) {
                 new_dest = false;
             }

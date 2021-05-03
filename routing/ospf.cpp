@@ -14,7 +14,7 @@ std::vector<Router> synchronize_routers(std::vector< std::vector<int> > networkT
     std::map<int, Router> routers;
 
     int router_id;
-    for (int i = 0; i < router_ids.size(); ++i)
+    for (size_t i = 0; i < router_ids.size(); ++i)
     {
         router_id = router_ids.at(i);
         routers.insert(std::pair<int, Router>(router_id, Router(router_id)));
@@ -26,11 +26,11 @@ std::vector<Router> synchronize_routers(std::vector< std::vector<int> > networkT
     std::vector<int> link;
     RouterLSA lsa;
 
-    for (int i = 0; i < routers.size(); ++i)
+    for (size_t i = 0; i < routers.size(); ++i)
     {
         router_id = routers.at(i).getID();
 
-        for (int link_idx = 0; link_idx < networkTopology.size(); ++link_idx)
+        for (size_t link_idx = 0; link_idx < networkTopology.size(); ++link_idx)
         {
             link = networkTopology.at(link_idx);
             if (link.at(0) == router_id || link.at(1) == router_id)
@@ -56,7 +56,7 @@ std::vector<Router> synchronize_routers(std::vector< std::vector<int> > networkT
         int neighbor_id;
         std::vector<RouterLSA> advertised_database;
         
-        for (int i = 0; i < routers.size(); ++i)
+        for (size_t i = 0; i < routers.size(); ++i)
         {
             // get list of neighbors
             neighbor_ids.clear();
@@ -64,7 +64,7 @@ std::vector<Router> synchronize_routers(std::vector< std::vector<int> > networkT
 
             // advertise database to all neighbors
             advertised_database = routers.at(i).advertise_database();
-            for (int neighbor_idx = 0; neighbor_idx < neighbor_ids.size(); ++neighbor_idx)
+            for (size_t neighbor_idx = 0; neighbor_idx < neighbor_ids.size(); ++neighbor_idx)
             {
                 neighbor_id = neighbor_ids.at(neighbor_idx);
                 routers.at(neighbor_id).update_database(advertised_database);
@@ -75,7 +75,7 @@ std::vector<Router> synchronize_routers(std::vector< std::vector<int> > networkT
         synchronized = true;
 
         // check if LSDBs are all the same
-        for (int i = 0; i < routers.size() - 1; ++i)
+        for (size_t i = 0; i < routers.size() - 1; ++i)
         {
             // A bit of a hack, but check for equality by
             // going through routers in order of ID. More

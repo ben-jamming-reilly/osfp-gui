@@ -1,10 +1,36 @@
 #include <vector>
 #include <algorithm>
-#include <napi.h>
 #include "router_json_parser.h"
 #include "../ospf.h"
 
-std::vector< std::vector<int> > parseNetworkTopology(Napi::Env env, std::string json)
+std::stringstream error_message;
+
+// helper function to be called by getForwardingTable()
+// and getLeastCostPathsTable() just so we don't have
+// to define the error message more than once
+void define_error_message()
+{
+    error_message << "The network topology should be passed in as stringified";
+    error_message << std::endl << "JSON. For the following three-router network, the";
+    error_message << std::endl << "topology would be passed in by argument as follows:";
+    error_message << std::endl << std::endl;
+    error_message << "          [1]" << std::endl;
+    error_message << "       5 /   \\ 1" << std::endl;
+    error_message << "      [0]-----[2]" << std::endl;
+    error_message << "           11" << std::endl << std::endl;
+    error_message << "{" << std::endl;
+    error_message << "\t\"networkTopology\": [" << std::endl;
+    error_message << "\t\t[0,1,5]," << std::endl;
+    error_message << "\t\t[1,0,5]," << std::endl;
+    error_message << "\t\t[0,2,11]," << std::endl;
+    error_message << "\t\t[2,0,11]," << std::endl;
+    error_message << "\t\t[1,2,1]," << std::endl;
+    error_message << "\t\t[2,1,1]" << std::endl;
+    error_message << "\t]" << std::endl;
+    error_message << "}" << std::endl;
+}
+
+std::vector< std::vector<int> > parseNetworkTopology(std::string json)
 {
     // initialize return parameter, where each element is a link:
 	//	[src. router ID, dst. router ID, link cost]
@@ -21,11 +47,14 @@ std::vector< std::vector<int> > parseNetworkTopology(Napi::Env env, std::string 
 	std::string error;
 	if (!document.IsObject() || !document.HasMember("networkTopology"))
 	{
-		error = "Incorrectly formatted network topology.\n" + error_message.str();
-		Napi::Error::New(env, error).ThrowAsJavaScriptException();
+		error = "Incorrectly formatted network topology.\n" + (error_message.str());
+		
+		// C++ exceptions are disabled, so we just pass
+		// back an empty array to signal something went wrong
+		std::cout << error;
 		networkTopology.clear();
 		networkTopology.resize(0);
-		return networkTopology;
+		return networkTopology;	
 	}
 
     const rapidjson::Value& json_array = document["networkTopology"];
@@ -55,10 +84,12 @@ std::vector< std::vector<int> > parseNetworkTopology(Napi::Env env, std::string 
 			error.append("]\n\n");
 			error.append(error_message.str());
 
-			Napi::Error::New(env, error).ThrowAsJavaScriptException();
+			// C++ exceptions are disabled, so we just pass
+			// back an empty array to signal something went wrong
+			std::cout << error;
 			networkTopology.clear();
 			networkTopology.resize(0);
-			return networkTopology;
+			return networkTopology;		
 		}
 
         for (rapidjson::SizeType j = 0; j < link.Size(); ++j)
@@ -78,7 +109,7 @@ std::vector<int> parseRouterIDs(std::vector< std::vector<int> > networkTopology)
 	std::vector<int> router_ids;
 
 	int routerID;
-	for (int i = 0; i < networkTopology.size(); ++i)
+	for (size_t i = 0; i < networkTopology.size(); ++i)
 	{
 		routerID = networkTopology.at(i).at(0);	// destination ID for given link
 		if (std::count(router_ids.begin(), router_ids.end(), routerID) == 0)
@@ -127,7 +158,7 @@ std::string composeForwardingTable(std::vector<ForwardingTable> forwardingTables
 	int routerID;
 	ForwardingTable forwardingTable;
 	std::vector<int> tableEntry;
-	for (int i = 0; i < forwardingTables.size(); ++i)
+	for (size_t i = 0; i < forwardingTables.size(); ++i)
 	{
 		routerID = routerIDs.at(i);
 		snprintf(buffer, BUFFER_SIZE, "%u", routerID);
@@ -135,7 +166,7 @@ std::string composeForwardingTable(std::vector<ForwardingTable> forwardingTables
 		json_writer.StartArray();
 
 		forwardingTable = forwardingTables.at(i);
-		for (int j = 0; j < forwardingTable.size(); ++j)
+		for (size_t j = 0; j < forwardingTable.size(); ++j)
 		{
 			tableEntry = forwardingTable.at(j);
 			json_writer.StartArray();
@@ -170,14 +201,14 @@ std::string composeLeastCostPathsTable(std::vector< std::vector<std::string> > l
 	char buffer[10];
 	int BUFFER_SIZE = 10;
 
-	for (int i = 0; i < leastCostPathsTable.size(); ++i)
+	for (size_t i = 0; i < leastCostPathsTable.size(); ++i)
 	{
-		snprintf(buffer, BUFFER_SIZE, "%u", i);
+		snprintf(buffer, BUFFER_SIZE, "%u", (int) i);
 		json_writer.String(buffer);
 		json_writer.StartObject();
-		for (int j = 0; j < leastCostPathsTable.at(0).size(); ++j)
+		for (size_t j = 0; j < leastCostPathsTable.at(0).size(); ++j)
 		{
-			snprintf(buffer, BUFFER_SIZE, "%u", j);
+			snprintf(buffer, BUFFER_SIZE, "%u", (int) j);
 			json_writer.Key(buffer);
 			json_writer.String(leastCostPathsTable.at(i).at(j).c_str());
 		}

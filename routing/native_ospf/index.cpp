@@ -1,37 +1,9 @@
 #include <napi.h>
 #include <string>
-#include <sstream>
 #include <iostream>
 #include "router_json_parser.h"
 #include "../ospf.h"
 #include "../Router.h"
-
-std::stringstream error_message;
-
-// helper function to be called by getForwardingTable()
-// and getLeastCostPathsTable() just so we don't have
-// to define the error message more than once
-void define_error_message()
-{
-    error_message << "The network topology should be passed in as stringified";
-    error_message << std::endl << "JSON. For the following three-router network, the";
-    error_message << std::endl << "topology would be passed in by argument as follows:";
-    error_message << std::endl << std::endl;
-    error_message << "          [1]" << std::endl;
-    error_message << "       5 /   \\ 1" << std::endl;
-    error_message << "      [0]-----[2]" << std::endl;
-    error_message << "           11" << std::endl << std::endl;
-    error_message << "{" << std::endl;
-    error_message << "\t\"networkTopology\": [" << std::endl;
-    error_message << "\t\t[0,1,5]," << std::endl;
-    error_message << "\t\t[1,0,5]," << std::endl;
-    error_message << "\t\t[0,2,11]," << std::endl;
-    error_message << "\t\t[2,0,11]," << std::endl;
-    error_message << "\t\t[1,2,1]," << std::endl;
-    error_message << "\t\t[2,1,1]" << std::endl;
-    error_message << "\t]" << std::endl;
-    error_message << "}" << std::endl << std::endl;
-}
 
 // For the both getForwardingTable() and getLeastCostPathsTable(),
 // the expected input is given by following network topology,
@@ -128,7 +100,8 @@ Napi::String getForwardingTable(const Napi::CallbackInfo& info)
 
     std::string json = (std::string) info[0].ToString();
 
-    std::vector< std::vector<int> > network_topology = parseNetworkTopology(env, json);
+    std::vector< std::vector<int> > network_topology = parseNetworkTopology(json);
+    
     if (network_topology.size() == 0)
     {
         return Napi::String::New(env, "");
@@ -142,7 +115,7 @@ Napi::String getForwardingTable(const Napi::CallbackInfo& info)
     // step #2: use Dijkstra's algorithm to calculate the
     //          least cost paths table for each router
 
-    for (int i = 0; i < routers.size(); ++i)
+    for (size_t i = 0; i < routers.size(); ++i)
     {
         routers.at(i).calculate_dijkstras();
     }
@@ -154,12 +127,12 @@ Napi::String getForwardingTable(const Napi::CallbackInfo& info)
     std::vector<int> entry;
 
     // format data to get ready for composing JSON
-    for (int i = 0; i < routers.size(); ++i)
+    for (size_t i = 0; i < routers.size(); ++i)
     {
         forwardingTable = routers.at(i).generate_forwarding_table();
 
         // change each row from a tupple to an array
-        for (int j = 0; j < forwardingTable.size(); ++j)
+        for (size_t j = 0; j < forwardingTable.size(); ++j)
         {
             entry = {std::get<0>(forwardingTable.at(j)),
                      std::get<1>(forwardingTable.at(j)),
@@ -223,7 +196,7 @@ Napi::String getLeastCostPathsTable(const Napi::CallbackInfo& info)
 
     std::string json = (std::string) info[0].ToString();
 
-    std::vector< std::vector<int> > network_topology = parseNetworkTopology(env, json);
+    std::vector< std::vector<int> > network_topology = parseNetworkTopology(json);
 
     // step #1: build up network of router objects and simulate
     //          adjacency formation by synchronizing each router's LSDB
@@ -233,7 +206,7 @@ Napi::String getLeastCostPathsTable(const Napi::CallbackInfo& info)
     // step #2: use Dijkstra's algorithm to calculate the
     //          least cost paths table for each router
 
-    for (int i = 0; i < routers.size(); ++i)
+    for (size_t i = 0; i < routers.size(); ++i)
     {
         routers.at(i).calculate_dijkstras();
     }
@@ -246,15 +219,15 @@ Napi::String getLeastCostPathsTable(const Napi::CallbackInfo& info)
     std::vector<unsigned int> path;
 
     // format data to get ready for composing JSON
-    for (int i = 0; i < routers.size(); ++i)
+    for (size_t i = 0; i < routers.size(); ++i)
     {
         leastCostPathsTable = routers.at(i).generate_shortest_paths();
 
         // change each row from an array to a string
-        for (int row = 0; row < leastCostPathsTable.size(); ++row)
+        for (size_t row = 0; row < leastCostPathsTable.size(); ++row)
         {
             path = leastCostPathsTable.at(row);
-            for (int col = 0; col < path.size(); ++col)
+            for (size_t col = 0; col < path.size(); ++col)
             {
                 buffer = buffer.append(std::to_string(path.at(col))).append(",");
             }

@@ -32,6 +32,9 @@ public:
                 return false;
             }
         }
+
+        // control should never reach here, just to suppress warnings
+        return true;
     }
 
     // Returns the src id

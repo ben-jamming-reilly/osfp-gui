@@ -78,7 +78,7 @@ public:
 
         RouterLSA lhs_lsa, rhs_lsa;
 
-        for (int i = 0; i < this->router_lsdb.size(); ++i)
+        for (size_t i = 0; i < this->router_lsdb.size(); ++i)
         {
             lhs_lsa = lhs_lsas.at(i);
             rhs_lsa = rhs_lsas.at(i);

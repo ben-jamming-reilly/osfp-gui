@@ -8,7 +8,7 @@ std::vector<std::tuple<int, int, unsigned int>> Router::populate_least_cost_dest
     connections = this->networkLSA.find_connections_with(this->routerID);
 
     // For each destination
-    for(int i = 0; i < this->all_dest.size(); i++) {
+    for(size_t i = 0; i < this->all_dest.size(); i++) {
         // If is this router, distance is 0
         if(this->all_dest.at(i) == this->routerID) {
             cost = 0;
@@ -17,7 +17,7 @@ std::vector<std::tuple<int, int, unsigned int>> Router::populate_least_cost_dest
         // the current one, in which case it is that link state cost
         else {
             cost = inf;
-            for(int j = 0; j < connections.size(); j++) {
+            for(size_t j = 0; j < connections.size(); j++) {
                 if(connections.at(j).first == this->all_dest.at(i)) {
                     cost = connections.at(j).second;
                     break;
@@ -52,8 +52,8 @@ void Router::calculate_dijkstras() {
         std::vector<std::pair<int, int>> connected_routers;
         std::vector<std::pair<int, int>> connected_routers_all = this->networkLSA.find_connections_with(cur_w);
         
-        for(int i = 0; i < nprime.size(); i++) {
-            for(int j = 0; j < connected_routers_all.size(); j++) {
+        for(size_t i = 0; i < nprime.size(); i++) {
+            for(size_t j = 0; j < connected_routers_all.size(); j++) {
     
                 if(nprime.at(i) != connected_routers_all.at(j).first) {
                     connected_routers.push_back(connected_routers_all.at(j));
@@ -66,7 +66,7 @@ void Router::calculate_dijkstras() {
 
         // Find current cost to cur_w
         int dw_cost = 0;
-        for(int i = 0; i < this->least_cost_destination.size(); i++) {
+        for(size_t i = 0; i < this->least_cost_destination.size(); i++) {
             if(cur_w == std::get<0>(this->least_cost_destination.at(i))) {
                 dw_cost = std::get<2>(this->least_cost_destination.at(i));
                 break;
@@ -76,18 +76,18 @@ void Router::calculate_dijkstras() {
 
 
         // Update according to the equation D(v) = min(D(v), D(w) + c(w, v))
-        for(int i = 0; i < this->least_cost_destination.size(); i++) {
+        for(size_t i = 0; i < this->least_cost_destination.size(); i++) {
             int v = std::get<0>(this->least_cost_destination.at(i));
             // Get c(w, v)
             int cwy = this->inf;
-            for(int j = 0; j < connected_routers.size(); j++) {
+            for(size_t j = 0; j < connected_routers.size(); j++) {
                 if(v == connected_routers.at(j).first) {
                     cwy = connected_routers.at(j).second;
                     break;
                 }
             }
 
-            if(dw_cost + cwy < std::get<2>(this->least_cost_destination.at(i))) {
+            if(dw_cost + cwy < (int) std::get<2>(this->least_cost_destination.at(i))) {
                 std::get<2>(this->least_cost_destination.at(i)) = dw_cost + cwy;
                 std::get<1>(this->least_cost_destination.at(i)) = cur_w;
             }
@@ -104,11 +104,11 @@ int Router::compute_lowest_dv(std::vector<int> nprime)
     bool in_nprime = false;
     int cur_small = this->routerID;
     // For every destination
-    for(int i = 0; i < this->all_dest.size(); i++) {
+    for(size_t i = 0; i < this->all_dest.size(); i++) {
         int cur_val = this->all_dest.at(i);
         // Make sure not in nprime
         in_nprime = false;
-        for(int j = 0; j < nprime.size(); j++) {
+        for(size_t j = 0; j < nprime.size(); j++) {
             if(cur_val == nprime.at(j)) {
                 in_nprime = true;
                 break;
@@ -117,7 +117,7 @@ int Router::compute_lowest_dv(std::vector<int> nprime)
 
         if(!in_nprime) {
             // Find the current cost to it
-            for(int k = 0; k < this->least_cost_destination.size(); k++) {
+            for(size_t k = 0; k < this->least_cost_destination.size(); k++) {
                 if(cur_val == std::get<0>(this->least_cost_destination.at(k))) {
                     cur_cost = std::get<2>(this->least_cost_destination.at(k));
                 }
@@ -135,19 +135,18 @@ int Router::compute_lowest_dv(std::vector<int> nprime)
 
 std::vector<std::vector<unsigned int>> Router::generate_shortest_paths() {
     std::vector<std::vector<unsigned int>> all_paths;
-    int prev_val = this->routerID;
 
-    for(int i = 0; i < this->all_dest.size(); i++) {
+    for(size_t i = 0; i < this->all_dest.size(); i++) {
         unsigned int dest = static_cast<unsigned int>(this->all_dest.at(i));
         std::vector<unsigned int> path;
         unsigned int cost = this->inf;
         
         do {
             // Find previous value
-            for(int j = 0; j < this->least_cost_destination.size(); j++) {
-                if(std::get<0>(this->least_cost_destination.at(j)) == dest) {
+            for(size_t j = 0; j < this->least_cost_destination.size(); j++) {
+                if((unsigned int) std::get<0>(this->least_cost_destination.at(j)) == dest) {
                     // If original dest copy the cost (should be first only)
-                    if(dest == this->all_dest.at(i)) {
+                    if(dest == (unsigned int) this->all_dest.at(i)) {
                         cost = std::get<2>(this->least_cost_destination.at(j));
                         path.push_back(cost);
                     }
@@ -158,7 +157,7 @@ std::vector<std::vector<unsigned int>> Router::generate_shortest_paths() {
                     
                 }
             }
-        } while(dest != this->routerID);
+        } while(dest != (unsigned int) this->routerID);
         // Insert starting router
         path.insert(path.begin(), dest);
 
@@ -174,7 +173,7 @@ std::vector<std::tuple<int, int, unsigned int>> Router::generate_forwarding_tabl
     std::vector<std::tuple<int, int, unsigned int>> table;
 
     // For each path
-    for(int i = 0; i < all_paths.size(); i++) {
+    for(size_t i = 0; i < all_paths.size(); i++) {
         int size = all_paths.at(i).size();
         int hop_router = static_cast<int>(all_paths.at(i).at(1));
         int dest = static_cast<int>(all_paths.at(i).at(size - 2));
