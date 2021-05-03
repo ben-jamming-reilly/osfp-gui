@@ -6,8 +6,9 @@
 
 std::vector< std::vector<int> > parseNetworkTopology(std::string json)
 {
-    // initialize return parameter
-    std::vector< std::vector<int> > networkTopology(6, std::vector<int>(3,0));
+    // initialize return parameter, where each element is a link:
+	//	[src. router ID, dst. router ID, link cost]
+    std::vector< std::vector<int> > networkTopology;
 
     // ParseInsitu expects dynamically allocated char*
     char buffer[json.size()];
@@ -17,12 +18,15 @@ std::vector< std::vector<int> > parseNetworkTopology(std::string json)
     rapidjson::Document document;
     document.ParseInsitu(buffer);
 
-    const rapidjson::Value& nested_array = document["networkTopology"];
+    const rapidjson::Value& json_array = document["networkTopology"];
 
-    for (rapidjson::SizeType i = 0; i < nested_array.Size(); ++i)
+    for (rapidjson::SizeType i = 0; i < json_array.Size(); ++i)
     {   
-        const rapidjson::Value& link = nested_array[i];
-        for (rapidjson::SizeType j = 0; j < nested_array[i].Size(); ++j)
+		// add new vector to return parameter
+		networkTopology.push_back(std::vector<int>(3));
+
+        const rapidjson::Value& link = json_array[i];
+        for (rapidjson::SizeType j = 0; j < link.Size(); ++j)
         {
             networkTopology.at(i).at(j) = link[j].GetUint();
         }

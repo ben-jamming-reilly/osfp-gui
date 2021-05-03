@@ -21,3 +21,9 @@ build
 
 # ignore binary files
 *.out
+
+# ignore debugger symbols and files
+*.dSYM/
+
+# ignore VSCode directory
+.vscode/
