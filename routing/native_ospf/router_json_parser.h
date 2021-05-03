@@ -13,7 +13,9 @@
 
 std::vector< std::vector<int> > parseNetworkTopology(std::string);
 std::vector<int> parseRouterIDs(std::vector< std::vector<int> >);
+std::vector<ForwardingTable> formatForwardingTable(std::vector<Router>);
 std::string composeForwardingTable(std::vector<ForwardingTable>, std::vector<int>);
+std::vector< std::vector<std::string> > formatLeastCostPathsTable(std::vector<Router>);
 std::string composeLeastCostPathsTable(std::vector< std::vector<std::string> >);
 void define_error_message();
 extern std::stringstream error_message;

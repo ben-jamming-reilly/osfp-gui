@@ -494,7 +494,10 @@ TEST(RouterTests, forwarding_table) {
 	std::vector<std::tuple<int, int, unsigned int>> answers;
 	std::tuple<int, int, unsigned int> package;
 
-	// Test adjacent
+	// Test adjacent for the following two-router network:
+	//
+	//		[u] --1-- [v]
+	//
 	RouterLSA lsa = { Link(u, v), INIT_SEQ_NUM, 1};
 	lsdb.add_router_lsa(lsa);
 	router.set_networkLSD(lsdb);
@@ -505,7 +508,10 @@ TEST(RouterTests, forwarding_table) {
     answers.push_back(package);
 	ASSERT_EQ(router.generate_forwarding_table(), answers);
 	
-	// Test multiple adjacent
+	// Test multiple adjacent for the following three router network:
+	//
+	//		[w]	--3-- [u] --1-- [v]
+	//
 	lsa = { Link(u, w), INIT_SEQ_NUM, 3};
 	lsdb.add_router_lsa(lsa);
 	router.set_networkLSD(lsdb);
@@ -514,7 +520,10 @@ TEST(RouterTests, forwarding_table) {
     answers.push_back(package);
 	ASSERT_EQ(router.generate_forwarding_table(), answers);
 
-	// Test 1 non-adjacent
+	// Test 1 non-adjacent for the following four router network
+	//
+	//		[x] --1-- [w] --3-- [u] --1-- [v]
+	//
 	lsa = { Link(x, w), INIT_SEQ_NUM, 1};
 	lsdb.add_router_lsa(lsa);
 	router.set_networkLSD(lsdb);
@@ -523,12 +532,78 @@ TEST(RouterTests, forwarding_table) {
     answers.push_back(package);
 	ASSERT_EQ(router.generate_forwarding_table(), answers);
 
-	// Test 2 non-adjacent
+	// Test 2 non-adjacent for the following four router network:
+	//
+	//		[x] --1-- [w]
+	//	     |		   |
+	//	     7		   3
+	//	     |		   |
+	//	    [v] --1-- [u]
+	//
 	lsa = { Link(x, v), INIT_SEQ_NUM, 7};
 	lsdb.add_router_lsa(lsa);
 	router.set_networkLSD(lsdb);
 	router.calculate_dijkstras();
+	// forwarding table shouldn't change since direct
+	// neighbor link is still the lowest cost path to v from u
 	ASSERT_EQ(router.generate_forwarding_table(), answers);
+}
+
+TEST(RouterTest, ring_topology_forwarding_table)
+{
+	// making forwarding table for the following network topology:
+	//			[1]
+	//		 5 /   \ 1
+	//		[0]-----[2]
+	//			 11
+
+	std::vector< std::vector<int> > network_topology;
+	std::string json = "{\"networkTopology\":[[0,1,5],[1,0,5],[0,2,11],[2,0,11],[1,2,1],[2,1,1]]}";
+
+	network_topology = parseNetworkTopology(json);
+	std::vector<Router> routers = synchronize_routers(network_topology);
+
+	for (size_t i = 0; i < routers.size(); ++i)
+    {
+        routers.at(i).calculate_dijkstras();
+    }
+
+    std::vector<ForwardingTable> forwardingTables = formatForwardingTable(routers);
+
+    // step #4: parse forwarding table and pass back through NAPI
+
+    std::vector<int> routerIDs = parseRouterIDs(network_topology);
+    std::string composed_json = composeForwardingTable(forwardingTables, routerIDs);
+
+	std::string correct_json = "{\"forwardingTable\":{\"0\":[[1,1,5],[0,0,0],[2,1,6]],\"1\":[[1,1,0],[0,0,5],[2,2,1]],\"2\":[[1,1,1],[0,1,6],[2,2,0]]}}";
+	ASSERT_EQ(correct_json, composed_json);
+}
+
+TEST(RouterTests, lowest_cost_paths)
+{
+	// finding lowest cost paths for the following network topology:
+	//			[1]
+	//		 5 /   \ 1
+	//		[0]-----[2]
+	//			 11	
+
+	std::vector< std::vector<int> > network_topology;
+	std::string json = "{\"networkTopology\":[[0,1,5],[1,0,5],[0,2,11],[2,0,11],[1,2,1],[2,1,1]]}";
+
+	network_topology = parseNetworkTopology(json);
+	std::vector<Router> routers = synchronize_routers(network_topology);
+
+	for (size_t i = 0; i < routers.size(); ++i)
+    {
+        routers.at(i).calculate_dijkstras();
+    }
+
+	std::vector< std::vector<std::string> > least_cost_paths_table = formatLeastCostPathsTable(routers);
+	std::string composed_json = composeLeastCostPathsTable(least_cost_paths_table);
+
+	std::string correct_json = "{\"lowestCostPaths\":{\"0\":{\"0\":\"0,0\",\"1\":\"0,1\",\"2\":\"0,1,2\"},\"1\":{\"0\":\"1,0\",\"1\":\"1,1\",\"2\":\"1,2\"},\"2\":{\"0\":\"2,1,0\",\"1\":\"2,1\",\"2\":\"2,2\"}}}";
+
+	ASSERT_EQ(composed_json, correct_json);
 }
 
 TEST(RouterTests, FormingAdjacencies)

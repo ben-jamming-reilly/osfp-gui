@@ -101,6 +101,40 @@ std::vector< std::vector<int> > parseNetworkTopology(std::string json)
     return networkTopology;
 }
 
+// function assumes that routers have been synchronized and
+// Dijkstra's algorithm has been called on each router already
+std::vector<ForwardingTable> formatForwardingTable(std::vector<Router> routers)
+{
+	std::vector<ForwardingTable> forwardingTables;
+    std::vector< std::tuple<int,int,unsigned int> > forwardingTable;
+    ForwardingTable formattedForwardingTable;
+    std::vector<int> entry;
+
+	// format data to get ready for composing JSON
+    for (size_t i = 0; i < routers.size(); ++i)
+    {
+        forwardingTable = routers.at(i).generate_forwarding_table();
+
+        // change each row from a tupple to an array
+        for (size_t j = 0; j < forwardingTable.size(); ++j)
+        {
+            entry = {std::get<0>(forwardingTable.at(j)),
+                     std::get<1>(forwardingTable.at(j)),
+               (int) std::get<2>(forwardingTable.at(j))};
+            formattedForwardingTable.push_back(entry);
+        }
+
+        // add formatted table to list
+        forwardingTables.push_back(formattedForwardingTable);
+
+		// reset variable
+		formattedForwardingTable.clear();
+		formattedForwardingTable.resize(0);
+    }
+
+	return forwardingTables;
+}
+
 std::vector<int> parseRouterIDs(std::vector< std::vector<int> > networkTopology)
 {
 	// note that network topology links are in the following form:
@@ -142,6 +176,44 @@ std::vector<int> parseRouterIDs(std::vector< std::vector<int> > networkTopology)
 		if (router_ids. networkTopology.at(i).at(0) )
 	}
 	*/
+}
+
+std::vector< std::vector<std::string> > formatLeastCostPathsTable(std::vector<Router> routers)
+{
+	std::vector< std::vector<std::string> > leastCostPathsTables;
+    std::vector< std::vector<unsigned int> > leastCostPathsTable;
+    std::vector<std::string> formattedLeastCostPathsTable;
+    std::string buffer = "";
+    std::vector<unsigned int> path;
+
+    // format data to get ready for composing JSON
+    for (size_t i = 0; i < routers.size(); ++i)
+    {
+        leastCostPathsTable = routers.at(i).generate_shortest_paths();
+
+        // change each row from an array to a string
+        for (size_t row = 0; row < leastCostPathsTable.size(); ++row)
+        {
+            path = leastCostPathsTable.at(row);
+            for (size_t col = 0; col < path.size(); ++col)
+            {
+                buffer = buffer.append(std::to_string(path.at(col))).append(",");
+            }
+            
+            // remove last extra comma
+            buffer = buffer.substr(0, buffer.size() - 1);
+    
+            formattedLeastCostPathsTable.push_back(buffer);
+        }
+
+        leastCostPathsTables.push_back(formattedLeastCostPathsTable);
+
+		// reset variable
+		formattedLeastCostPathsTable.clear();
+		formattedLeastCostPathsTable.resize(0);
+    }
+
+	return leastCostPathsTables;
 }
 
 std::string composeForwardingTable(std::vector<ForwardingTable> forwardingTables, std::vector<int> routerIDs)
