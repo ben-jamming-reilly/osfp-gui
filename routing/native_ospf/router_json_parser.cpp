@@ -1,10 +1,10 @@
 #include <vector>
 #include <algorithm>
-
+#include <napi.h>
 #include "router_json_parser.h"
 #include "../ospf.h"
 
-std::vector< std::vector<int> > parseNetworkTopology(std::string json)
+std::vector< std::vector<int> > parseNetworkTopology(Napi::Env env, std::string json)
 {
     // initialize return parameter, where each element is a link:
 	//	[src. router ID, dst. router ID, link cost]
@@ -18,6 +18,16 @@ std::vector< std::vector<int> > parseNetworkTopology(std::string json)
     rapidjson::Document document;
     document.ParseInsitu(buffer);
 
+	std::string error;
+	if (!document.IsObject() || !document.HasMember("networkTopology"))
+	{
+		error = "Incorrectly formatted network topology.\n" + error_message.str();
+		Napi::Error::New(env, error).ThrowAsJavaScriptException();
+		networkTopology.clear();
+		networkTopology.resize(0);
+		return networkTopology;
+	}
+
     const rapidjson::Value& json_array = document["networkTopology"];
 
     for (rapidjson::SizeType i = 0; i < json_array.Size(); ++i)
@@ -26,6 +36,31 @@ std::vector< std::vector<int> > parseNetworkTopology(std::string json)
 		networkTopology.push_back(std::vector<int>(3));
 
         const rapidjson::Value& link = json_array[i];
+
+		if (link.Size() != 3)
+		{
+			error = "Incorrectly formatted network topology.\n";
+			error.append("Link arrays must contain exactly three integers.\n\n");
+			error.append("Malformed link:\n\n");
+			error.append("\t[");
+			for (rapidjson::SizeType j = 0; j < link.Size(); ++j)
+			{
+				error.append(std::to_string(link[j].GetUint()));
+				error.append(",");
+			}
+			
+			// remove last unecessary comma
+			error = error.substr(0, error.size() - 1);
+			
+			error.append("]\n\n");
+			error.append(error_message.str());
+
+			Napi::Error::New(env, error).ThrowAsJavaScriptException();
+			networkTopology.clear();
+			networkTopology.resize(0);
+			return networkTopology;
+		}
+
         for (rapidjson::SizeType j = 0; j < link.Size(); ++j)
         {
             networkTopology.at(i).at(j) = link[j].GetUint();

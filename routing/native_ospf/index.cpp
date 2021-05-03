@@ -1,10 +1,37 @@
 #include <napi.h>
 #include <string>
+#include <sstream>
 #include <iostream>
 #include "router_json_parser.h"
 #include "../ospf.h"
 #include "../Router.h"
 
+std::stringstream error_message;
+
+// helper function to be called by getForwardingTable()
+// and getLeastCostPathsTable() just so we don't have
+// to define the error message more than once
+void define_error_message()
+{
+    error_message << "The network topology should be passed in as stringified";
+    error_message << std::endl << "JSON. For the following three-router network, the";
+    error_message << std::endl << "topology would be passed in by argument as follows:";
+    error_message << std::endl << std::endl;
+    error_message << "          [1]" << std::endl;
+    error_message << "       5 /   \\ 1" << std::endl;
+    error_message << "      [0]-----[2]" << std::endl;
+    error_message << "           11" << std::endl << std::endl;
+    error_message << "{" << std::endl;
+    error_message << "\t\"networkTopology\": [" << std::endl;
+    error_message << "\t\t[0,1,5]," << std::endl;
+    error_message << "\t\t[1,0,5]," << std::endl;
+    error_message << "\t\t[0,2,11]," << std::endl;
+    error_message << "\t\t[2,0,11]," << std::endl;
+    error_message << "\t\t[1,2,1]," << std::endl;
+    error_message << "\t\t[2,1,1]" << std::endl;
+    error_message << "\t]" << std::endl;
+    error_message << "}" << std::endl << std::endl;
+}
 
 // For the both getForwardingTable() and getLeastCostPathsTable(),
 // the expected input is given by following network topology,
@@ -82,10 +109,30 @@
 Napi::String getForwardingTable(const Napi::CallbackInfo& info)
 {
     Napi::Env env = info.Env();
+
+    std::string error;
+    define_error_message();
+    if (info.Length() == 0)
+    {
+        error = "Too few arguments.\n" + error_message.str();
+        Napi::Error::New(env, error).ThrowAsJavaScriptException();
+        return Napi::String::New(env, "");
+    }
+
+    if (info.Length() > 1)
+    {
+        error = "Too many arguments.\n" + error_message.str();
+        Napi::Error::New(env, error).ThrowAsJavaScriptException();
+        return Napi::String::New(env, "");
+    }
+
     std::string json = (std::string) info[0].ToString();
 
-    std::vector< std::vector<int> > network_topology = parseNetworkTopology(json);
-    
+    std::vector< std::vector<int> > network_topology = parseNetworkTopology(env, json);
+    if (network_topology.size() == 0)
+    {
+        return Napi::String::New(env, "");
+    }
     
     // step #1: build up network of router objects and simulate
     //          adjacency formation by synchronizing each router's LSDB
@@ -106,6 +153,7 @@ Napi::String getForwardingTable(const Napi::CallbackInfo& info)
     ForwardingTable formattedForwardingTable;
     std::vector<int> entry;
 
+    // format data to get ready for composing JSON
     for (int i = 0; i < routers.size(); ++i)
     {
         forwardingTable = routers.at(i).generate_forwarding_table();
@@ -156,9 +204,26 @@ Napi::String getForwardingTable(const Napi::CallbackInfo& info)
 Napi::String getLeastCostPathsTable(const Napi::CallbackInfo& info)
 {
     Napi::Env env = info.Env();
+
+    std::string error;
+    define_error_message();
+    if (info.Length() == 0)
+    {
+        error = "Too few arguments.\n" + error_message.str();
+        Napi::Error::New(env, error).ThrowAsJavaScriptException();
+        return Napi::String::New(env, "");
+    }
+
+    if (info.Length() > 1)
+    {
+        error = "Too many arguments.\n" + error_message.str();
+        Napi::Error::New(env, error).ThrowAsJavaScriptException();
+        return Napi::String::New(env, "");
+    }
+
     std::string json = (std::string) info[0].ToString();
 
-    std::vector< std::vector<int> > network_topology = parseNetworkTopology(json);
+    std::vector< std::vector<int> > network_topology = parseNetworkTopology(env, json);
 
     // step #1: build up network of router objects and simulate
     //          adjacency formation by synchronizing each router's LSDB
@@ -179,6 +244,8 @@ Napi::String getLeastCostPathsTable(const Napi::CallbackInfo& info)
     std::vector<std::string> formattedLeastCostPathsTable;
     std::string buffer = "";
     std::vector<unsigned int> path;
+
+    // format data to get ready for composing JSON
     for (int i = 0; i < routers.size(); ++i)
     {
         leastCostPathsTable = routers.at(i).generate_shortest_paths();
