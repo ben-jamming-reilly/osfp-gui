@@ -2,7 +2,7 @@
 #include <vector>
 #include "Router.h"
 #include "ospf.h"
-#include "router_json_parser.h"
+#include "native_ospf/router_json_parser.h"
 
 std::vector<Router> synchronize_routers(std::vector< std::vector<int> > networkTopology)
 {

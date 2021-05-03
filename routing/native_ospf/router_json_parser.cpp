@@ -94,7 +94,7 @@ std::string composeForwardingTable(std::vector<ForwardingTable> forwardingTables
 	std::vector<int> tableEntry;
 	for (int i = 0; i < forwardingTables.size(); ++i)
 	{
-		int routerID = routerIDs.at(i);
+		routerID = routerIDs.at(i);
 		snprintf(buffer, BUFFER_SIZE, "%u", routerID);
 		json_writer.Key(buffer);
 		json_writer.StartArray();

@@ -561,10 +561,13 @@ TEST(RouterTests, FormingAdjacencies)
 TEST(RouterTests, FormingAdjacenciesComplicatedTopology)
 {
 	// forming adjacencies for the following network topology:
-	//			[1]
-	//		 5 /   \ 1
-	//		[0]-----[2]
-	//			 11
+	//   |-----5-----|
+	//	2|	[v]--3--[w]
+	//	 | 2/|	   / | \5
+	//	[u] 2|	3/	1|  [z]
+	//	  1\ | /	 | /2
+	//		[x]--1--[y]
+	//
 
 	std::vector< std::vector<int> > network_topology;
 	std::vector<int> router_ids;
