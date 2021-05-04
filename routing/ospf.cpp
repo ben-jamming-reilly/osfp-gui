@@ -19,16 +19,14 @@ std::vector<Router> synchronize_routers(std::vector< std::vector<int> > networkT
         router_id = router_ids.at(i);
         routers.insert(std::pair<int, Router>(router_id, Router(router_id)));
     }
-
     // step #2: add direct neighbors to each router's LSDB
-    
     // [src router ID, dst router ID, link cost]
     std::vector<int> link;
     RouterLSA lsa;
 
     for (size_t i = 0; i < routers.size(); ++i)
     {
-        router_id = routers.at(i).getID();
+        router_id = router_ids.at(i);
 
         for (size_t link_idx = 0; link_idx < networkTopology.size(); ++link_idx)
         {
@@ -37,7 +35,7 @@ std::vector<Router> synchronize_routers(std::vector< std::vector<int> > networkT
             {
                 // link is adjacent to current router, at to database
                 lsa = {Link(link.at(0), link.at(1)), INIT_SEQ_NUM, link.at(2)};
-                routers.at(i).receive_lsa(lsa);
+                routers.at(router_ids.at(i)).receive_lsa(lsa);
             }
         }
     }
@@ -60,10 +58,11 @@ std::vector<Router> synchronize_routers(std::vector< std::vector<int> > networkT
         {
             // get list of neighbors
             neighbor_ids.clear();
-            neighbor_ids = routers.at(i).neighbors();
+            neighbor_ids.resize(0);
+            neighbor_ids = routers.at(router_ids.at(i)).neighbors();
 
             // advertise database to all neighbors
-            advertised_database = routers.at(i).advertise_database();
+            advertised_database = routers.at(router_ids.at(i)).advertise_database();
             for (size_t neighbor_idx = 0; neighbor_idx < neighbor_ids.size(); ++neighbor_idx)
             {
                 neighbor_id = neighbor_ids.at(neighbor_idx);
@@ -81,7 +80,7 @@ std::vector<Router> synchronize_routers(std::vector< std::vector<int> > networkT
             // going through routers in order of ID. More
             // faithful emulation would check neighbors to
             // each other.
-            if (!routers.at(i).adjacent(routers.at(i+1)))
+            if (!routers.at(router_ids.at(i)).adjacent(routers.at(i+1)))
             {
                 // at least two routers are not
                 // synchronized, continue advertising

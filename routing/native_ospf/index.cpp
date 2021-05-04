@@ -83,7 +83,7 @@ Napi::String getForwardingTable(const Napi::CallbackInfo& info)
     std::string json = (std::string) info[0].ToString();
 
     std::vector< std::vector<int> > network_topology = parseNetworkTopology(json);
-    
+
     if (network_topology.size() == 0)
     {
         return Napi::String::New(env, "");
@@ -93,7 +93,7 @@ Napi::String getForwardingTable(const Napi::CallbackInfo& info)
     //          adjacency formation by synchronizing each router's LSDB
 
     std::vector<Router> routers = synchronize_routers(network_topology);
-
+    
     // step #2: use Dijkstra's algorithm to calculate the
     //          least cost paths table for each router
 
