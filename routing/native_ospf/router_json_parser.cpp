@@ -59,6 +59,7 @@ std::vector< std::vector<int> > parseNetworkTopology(std::string json)
 	}
 
     const rapidjson::Value& json_array = document["networkTopology"];
+	std::string temp;
 
     for (rapidjson::SizeType i = 0; i < json_array.Size(); ++i)
     {   
@@ -94,8 +95,17 @@ std::vector< std::vector<int> > parseNetworkTopology(std::string json)
 		}
 
         for (rapidjson::SizeType j = 0; j < link.Size(); ++j)
-        {
-            networkTopology.at(i).at(j) = link[j].GetUint();
+        {	
+			// occasionally RapidJSON parses number as a string
+			// and we have to perform the conversion ourselves :( 
+			if (link[j].IsString())
+			{
+				temp = link[j].GetString();
+				networkTopology.at(i).at(j) = std::stoi(temp);
+			} else
+			{
+				networkTopology.at(i).at(j) = link[j].GetUint();
+			}
         }
     }
 
