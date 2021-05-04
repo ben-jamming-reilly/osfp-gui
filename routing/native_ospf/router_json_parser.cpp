@@ -262,6 +262,12 @@ std::string composeForwardingTable(std::vector<ForwardingTable> forwardingTables
     return sb.GetString();
 }
 
+bool sortByDestination(const std::vector<int>& v1, const std::vector<int>& v2)
+{
+	// sort by second to last element (the destination router ID)
+	return v1.at(v1.size() - 2) < v2.at(v2.size() - 2);
+}
+
 std::string composeLeastCostPathsTable(std::vector< std::vector<std::string> > leastCostPathsTable)
 {
     rapidjson::StringBuffer sb;
@@ -269,26 +275,56 @@ std::string composeLeastCostPathsTable(std::vector< std::vector<std::string> > l
 
     json_writer.StartObject();
 	json_writer.Key("lowestCostPaths");
-	json_writer.StartObject();
+	json_writer.StartArray();
 	
-	char buffer[10];
-	int BUFFER_SIZE = 10;
+	std::stringstream buffer;
+	std::string substring;
+	std::vector< std::vector<int> > paths;
+	std::vector<int> path;
 
 	for (size_t i = 0; i < leastCostPathsTable.size(); ++i)
 	{
-		snprintf(buffer, BUFFER_SIZE, "%u", (int) i);
-		json_writer.String(buffer);
-		json_writer.StartObject();
-		for (size_t j = 0; j < leastCostPathsTable.at(0).size(); ++j)
+		// reset variables
+		paths.clear();
+		paths.resize(0);
+
+		for (size_t j = 0; j < leastCostPathsTable.at(i).size(); ++j)
 		{
-			snprintf(buffer, BUFFER_SIZE, "%u", (int) j);
-			json_writer.Key(buffer);
-			json_writer.String(leastCostPathsTable.at(i).at(j).c_str());
+			// reset variables
+			path.clear();
+			path.resize(0);
+			buffer.clear();
+			substring = "";
+			
+			// parse string to get paths
+			buffer = (std::stringstream) leastCostPathsTable.at(i).at(j);
+			while(buffer.good())
+			{
+				// split strings up by comma delimiter
+				getline(buffer, substring, ',');
+				path.push_back(std::stoi(substring));
+			}
+			paths.push_back(path);
 		}
-		json_writer.EndObject();
+
+		// sort paths by destination
+		std::sort(paths.begin(), paths.end(), sortByDestination);
+
+		// compose JSON for given paths
+		json_writer.StartArray();
+		for (size_t j = 0; j < paths.size(); ++j)
+		{
+			json_writer.StartArray();
+			for (size_t k = 0; k < paths.at(j).size(); ++k)
+			{	
+				json_writer.Uint(paths.at(j).at(k));
+			}
+			json_writer.EndArray();
+		}
+		json_writer.EndArray();
 	}
 
-	json_writer.EndObject();
+	json_writer.EndArray();
 	json_writer.EndObject();
 
     return sb.GetString();

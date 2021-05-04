@@ -114,25 +114,28 @@ Napi::String getForwardingTable(const Napi::CallbackInfo& info)
 }
 
 
-// Expected stringified JSON output:
+// Expected stringified JSON output.
+// Note that each nested array is of the form:
+//  [start router ID, ..., destination router ID, total cost]
+//
 //  {
-//    "lowestCostPaths": {
-//      "0": {
-//        "0": "0,0",
-//        "1": "0,1",
-//        "2": "0,1,2"
-//      },
-//      "1": {
-//        "0": "1,0",
-//        "1": "1,1",
-//        "2": "1,2"
-//      },
-//      "2": {
-//        "0": "2,1,0",
-//        "1": "2,1",
-//        "2": "2,2"
-//      }
-//    }
+//    "lowestCostPaths": [
+//      [   // from the perspective of router ID 0
+//        [0,0,0],  // destination router ID 0 (second to last element)
+//        [0,1,5],  // destination router ID 1 (second to last element)
+//        [0,1,2,6] // destination router ID 2 (second to last element)
+//      ],
+//      [   // from the perspective of router ID 1
+//        [1,0,5],
+//        [1,1,0],
+//        [1,2,1]
+//      ],
+//      [   // from the perspective of router ID 2
+//        [2,1,0,6],
+//        [2,1,1],
+//        [2,2,0]
+//      ]
+//    ]
 //  }
 //
 Napi::String getLeastCostPathsTable(const Napi::CallbackInfo& info)

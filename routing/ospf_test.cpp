@@ -157,12 +157,12 @@ TEST(RapidJsonTest, ComposeLowestCostPathsTable)
 	//		[0]-----[2]
 	//			 11
 	std::vector< std::vector<std::string> > leastCostPathsTable(3);
-	leastCostPathsTable.at(0) = {"0,0", "0,1", "0,1,2"};
-	leastCostPathsTable.at(1) = {"1,0", "1,1", "1,2"};
-	leastCostPathsTable.at(2) = {"2,1,0", "2,1", "2,2"};
+	leastCostPathsTable.at(0) = {"0,0,0", "0,1,5", "0,1,2,6"};
+	leastCostPathsTable.at(1) = {"1,0,5", "1,1,0", "1,2,1"};
+	leastCostPathsTable.at(2) = {"2,1,0,6", "2,1,1", "2,2,0"};
 
 	std::string composed_json = composeLeastCostPathsTable(leastCostPathsTable);
-	std::string correct_json = "{\"lowestCostPaths\":{\"0\":{\"0\":\"0,0\",\"1\":\"0,1\",\"2\":\"0,1,2\"},\"1\":{\"0\":\"1,0\",\"1\":\"1,1\",\"2\":\"1,2\"},\"2\":{\"0\":\"2,1,0\",\"1\":\"2,1\",\"2\":\"2,2\"}}}";
+	std::string correct_json = "{\"lowestCostPaths\":[[[0,0,0],[0,1,5],[0,1,2,6]],[[1,0,5],[1,1,0],[1,2,1]],[[2,1,0,6],[2,1,1],[2,2,0]]]}";
 	
 	ASSERT_EQ(composed_json, correct_json);
 }
@@ -601,7 +601,7 @@ TEST(RouterTests, lowest_cost_paths)
 	std::vector< std::vector<std::string> > least_cost_paths_table = formatLeastCostPathsTable(routers);
 	std::string composed_json = composeLeastCostPathsTable(least_cost_paths_table);
 
-	std::string correct_json = "{\"lowestCostPaths\":{\"0\":{\"0\":\"0,1,5\",\"1\":\"0,0,0\",\"2\":\"0,1,2,6\"},\"1\":{\"0\":\"1,1,0\",\"1\":\"1,0,5\",\"2\":\"1,2,1\"},\"2\":{\"0\":\"2,1,1\",\"1\":\"2,1,0,6\",\"2\":\"2,2,0\"}}}";
+	std::string correct_json = "{\"lowestCostPaths\":[[[0,0,0],[0,1,5],[0,1,2,6]],[[1,0,5],[1,1,0],[1,2,1]],[[2,1,0,6],[2,1,1],[2,2,0]]]}";
 
 	ASSERT_EQ(composed_json, correct_json);
 }
