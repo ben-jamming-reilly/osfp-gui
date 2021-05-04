@@ -601,7 +601,7 @@ TEST(RouterTests, lowest_cost_paths)
 	std::vector< std::vector<std::string> > least_cost_paths_table = formatLeastCostPathsTable(routers);
 	std::string composed_json = composeLeastCostPathsTable(least_cost_paths_table);
 
-	std::string correct_json = "{\"lowestCostPaths\":{\"0\":{\"0\":\"0,0\",\"1\":\"0,1\",\"2\":\"0,1,2\"},\"1\":{\"0\":\"1,0\",\"1\":\"1,1\",\"2\":\"1,2\"},\"2\":{\"0\":\"2,1,0\",\"1\":\"2,1\",\"2\":\"2,2\"}}}";
+	std::string correct_json = "{\"lowestCostPaths\":{\"0\":{\"0\":\"0,1,5\",\"1\":\"0,0,0\",\"2\":\"0,1,2,6\"},\"1\":{\"0\":\"1,1,0\",\"1\":\"1,0,5\",\"2\":\"1,2,1\"},\"2\":{\"0\":\"2,1,1\",\"1\":\"2,1,0,6\",\"2\":\"2,2,0\"}}}";
 
 	ASSERT_EQ(composed_json, correct_json);
 }
@@ -660,6 +660,19 @@ TEST(RouterTests, FormingAdjacenciesComplicatedTopology)
 		routers.at(i).print();
 	}
 	*/
+
+	for (int i = 0; i < router_ids.size() - 1; ++i)
+	{
+		ASSERT_TRUE(routers.at(i).adjacent(routers.at(i+1)));	
+	}
+}
+
+TEST(RouterTests, ComplicatedTopologySynchronizing)
+{
+	std::string json = "{\"networkTopology\":[[1,2,13],[2,1,13],[1,3,13],[3,1,13],[1,4,13],[4,1,13],[1,5,13],[5,1,13],[2,3,13],[3,2,13],[2,4,13],[4,2,13],[2,5,13],[5,2,13],[3,4,13],[4,3,13],[3,5,13],[5,3,13],[4,5,13],[5,4,13]]}";
+	std::vector< std::vector<int> > network_topology = parseNetworkTopology(json);
+	std::vector<Router> routers = synchronize_routers(network_topology);
+	std::vector<int> router_ids = parseRouterIDs(network_topology);
 
 	for (int i = 0; i < router_ids.size() - 1; ++i)
 	{

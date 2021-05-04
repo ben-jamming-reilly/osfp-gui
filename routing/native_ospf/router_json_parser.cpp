@@ -37,8 +37,9 @@ std::vector< std::vector<int> > parseNetworkTopology(std::string json)
     std::vector< std::vector<int> > networkTopology;
 
     // ParseInsitu expects dynamically allocated char*
-    char buffer[json.size()];
-    std::memcpy(buffer, json.c_str(), json.size());
+    char buffer[json.size()+1];
+    std::memcpy(buffer, json.c_str(), json.size()+1);
+
 
     // parse JSON
     rapidjson::Document document;
@@ -141,7 +142,6 @@ std::vector<int> parseRouterIDs(std::vector< std::vector<int> > networkTopology)
 	// [destination ID, source ID, link cost]
 
 	std::vector<int> router_ids;
-
 	int routerID;
 	for (size_t i = 0; i < networkTopology.size(); ++i)
 	{
@@ -194,6 +194,7 @@ std::vector< std::vector<std::string> > formatLeastCostPathsTable(std::vector<Ro
         // change each row from an array to a string
         for (size_t row = 0; row < leastCostPathsTable.size(); ++row)
         {
+			buffer = "";
             path = leastCostPathsTable.at(row);
             for (size_t col = 0; col < path.size(); ++col)
             {
