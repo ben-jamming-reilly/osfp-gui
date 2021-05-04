@@ -28,3 +28,5 @@ if (isDev) {
 }
 
 app.whenReady().then(createWindow);
+
+// const {getFowardingTable, getLeastCostPathsTable} = require("./build/Release/native_ospf.node");

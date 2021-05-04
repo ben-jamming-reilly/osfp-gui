@@ -87,7 +87,7 @@ const RouterDisplay = ({ topology, settings }) => {
     if (selectedRouter === 0) {
       return arr.map((elem1) =>
         arr.map((elem2) =>
-          elem1 != elem2 ? (
+          elem1 > elem2 ? (
             <Line
               zIndex={0}
               key={elem1 * arr.length + elem2}

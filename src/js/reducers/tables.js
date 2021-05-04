@@ -1,4 +1,7 @@
-const initialState = {};
+const initialState = {
+  tables: [],
+  paths: [],
+};
 
 function tablesReducer(state = initialState, action) {
   const { type, payload } = action;
