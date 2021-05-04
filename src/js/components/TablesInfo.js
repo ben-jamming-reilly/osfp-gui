@@ -16,10 +16,12 @@ const TablesInfo = () => {
         }}
       >
         <thead>
-          <th>Router</th>
-          <th>Destination</th>
-          <th>First Hop</th>
-          <th>Cost</th>
+          <tr>
+            <th>Router</th>
+            <th>Destination</th>
+            <th>First Hop</th>
+            <th>Cost</th>
+          </tr>
         </thead>
         <tbody>
           <tr>

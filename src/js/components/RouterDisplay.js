@@ -35,6 +35,8 @@ const RouterDisplay = ({ topology, settings }) => {
 
   const [numRouters, setNumRouters] = useState(topology.size);
   const [selectedRouter, setSelectedRouter] = useState(0);
+  const [linkView, setLinkView] = useState("");
+
   const [arr, setArr] = useState([]);
   const [dim, setDim] = useState({
     height: 0,
@@ -59,7 +61,8 @@ const RouterDisplay = ({ topology, settings }) => {
 
   useEffect(() => {
     setSelectedRouter(settings.selectedRouter);
-  }, [settings.selectedRouter]);
+    setLinkView(settings.linkView);
+  }, [settings]);
 
   useEffect(() => {
     let newArr = [];
@@ -80,6 +83,55 @@ const RouterDisplay = ({ topology, settings }) => {
         dim.height / 2
     );
 
+  const lineDisplay = () => {
+    if (selectedRouter === 0) {
+      return arr.map((elem1) =>
+        arr.map((elem2) =>
+          elem1 != elem2 ? (
+            <Line
+              zIndex={0}
+              key={elem1 * arr.length + elem2}
+              borderColor='#0275d8'
+              borderWidth={3}
+              x0={xCoord(elem2 / arr.length, 0.7)}
+              y0={yCoord(elem2 / arr.length, 0.7)}
+              x1={xCoord(elem1 / arr.length, 0.7)}
+              y1={yCoord(elem1 / arr.length, 0.7)}
+            />
+          ) : (
+            ""
+          )
+        )
+      );
+    } else if (linkView === "connections") {
+      return arr.map((elem) => (
+        <Line
+          zIndex={0}
+          key={elem}
+          borderColor='#df4759'
+          borderWidth={3}
+          x0={xCoord((Number(selectedRouter) - 1) / arr.length, 0.7)}
+          y0={yCoord((Number(selectedRouter) - 1) / arr.length, 0.7)}
+          x1={xCoord(elem / arr.length, 0.7)}
+          y1={yCoord(elem / arr.length, 0.7)}
+        />
+      ));
+    } else if (linkView === "paths") {
+      return arr.map((elem) => (
+        <Line
+          zIndex={0}
+          key={elem}
+          borderColor='#0275d8'
+          borderWidth={3}
+          x0={xCoord((Number(selectedRouter) - 1) / arr.length, 0.7)}
+          y0={yCoord((Number(selectedRouter) - 1) / arr.length, 0.7)}
+          x1={xCoord(elem / arr.length, 0.7)}
+          y1={yCoord(elem / arr.length, 0.7)}
+        />
+      ));
+    }
+  };
+
   return (
     <div ref={compRef} style={{ width: "100%", height: "100%" }}>
       <div>
@@ -94,20 +146,7 @@ const RouterDisplay = ({ topology, settings }) => {
           />
         ))}
       </div>
-      <div>
-        {arr.map((elem) => (
-          <Line
-            zIndex={0}
-            key={elem}
-            borderColor='#0275d8'
-            borderWidth={3}
-            x0={xCoord((elem - 1) / arr.length, 0.7)}
-            y0={yCoord((elem - 1) / arr.length, 0.7)}
-            x1={xCoord(elem / arr.length, 0.7)}
-            y1={yCoord(elem / arr.length, 0.7)}
-          />
-        ))}
-      </div>
+      <div>{lineDisplay()}</div>
     </div>
   );
 };

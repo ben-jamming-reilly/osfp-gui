@@ -15,9 +15,13 @@ function settingsReducer(state = initialState, action) {
 
   switch (type) {
     case SELECT_ROUTER:
-      return { showInfoPanel: true, selectedRouter: payload };
+      return {
+        showInfoPanel: true,
+        selectedRouter: payload,
+        linkView: "connections",
+      };
     case DESELECT_ROUTER:
-      return { showInfoPanel: false, selectedRouter: 0 };
+      return { showInfoPanel: false, selectedRouter: 0, linkView: "" };
     case SET_LINK_VIEW:
       return {
         ...state,

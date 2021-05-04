@@ -14,11 +14,11 @@ import Button from "react-bootstrap/Button";
 // icon
 import GraphIcon from "../icons/Graph";
 import TableIcon from "../icons/Table";
-import ArrowBowRight from "../icons/ArrowBoxRight";
+import ArrowBoxRight from "../icons/ArrowBoxRight";
 
-import { deselectRouter } from "../actions/settings";
+import { deselectRouter, setLinkView } from "../actions/settings";
 
-const InfoPanel = ({ deselectRouter }) => {
+const InfoPanel = ({ deselectRouter, setLinkView, settings }) => {
   const [isTableView, setIsTableView] = useState(false);
 
   return (
@@ -27,13 +27,19 @@ const InfoPanel = ({ deselectRouter }) => {
         <ButtonGroup>
           <Button
             variant={!isTableView ? "primary" : "outline-primary"}
-            onClick={() => setIsTableView(false)}
+            onClick={() => {
+              setIsTableView(false);
+              setLinkView("connections");
+            }}
           >
             <GraphIcon /> Topology
           </Button>
           <Button
             variant={isTableView ? "primary" : "outline-primary"}
-            onClick={() => setIsTableView(true)}
+            onClick={() => {
+              setIsTableView(true);
+              setLinkView("paths");
+            }}
           >
             <TableIcon /> Tables
           </Button>
@@ -47,7 +53,7 @@ const InfoPanel = ({ deselectRouter }) => {
             deselectRouter();
           }}
         >
-          <ArrowBowRight />
+          <ArrowBoxRight />
         </Button>
       </Card.Footer>
     </Card>
@@ -56,8 +62,14 @@ const InfoPanel = ({ deselectRouter }) => {
 
 InfoPanel.propTypes = {
   deselectRouter: PropTypes.func.isRequired,
+  setLinkView: PropTypes.func.isRequired,
+  settings: PropTypes.object.isRequired,
 };
 
-const stateToProps = (state) => ({});
+const stateToProps = (state) => ({
+  settings: state.settings,
+});
 
-export default connect(stateToProps, { deselectRouter })(InfoPanel);
+export default connect(stateToProps, { deselectRouter, setLinkView })(
+  InfoPanel
+);
