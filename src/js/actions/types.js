@@ -5,6 +5,7 @@ export const ADJUST_WEIGHTS = "ADJUST_WEIGHTS";
 
 // Tables
 export const UPDATE_TABLES = "UPDATE_TABLE";
+export const UPDATE_PATHS = "UPDATE_PATHS";
 
 // Settings
 export const SELECT_ROUTER = "SELECT_ROUTER";

@@ -1,5 +1,6 @@
 import { ADD_ROUTER, ADJUST_WEIGHTS, REMOVE_ROUTER } from "./types";
 import store from "../store";
+import { updateTables, updatePaths } from "./tables";
 
 export const addRouter = () => async (dispatch) => {
   let topology = store.getState().topology;
@@ -13,8 +14,10 @@ export const addRouter = () => async (dispatch) => {
     topology.graph.push(tuple1);
     topology.graph.push(tuple2);
   }
-
   dispatch({ type: ADD_ROUTER, payload: topology.graph });
+
+  dispatch(updateTables());
+  dispatch(updatePaths());
 };
 
 export const removeRouter = () => async (dispatch) => {
@@ -28,8 +31,14 @@ export const removeRouter = () => async (dispatch) => {
         tuple[0] !== removed_router_id && tuple[1] !== removed_router_id
     ),
   });
+
+  dispatch(updateTables());
+  dispatch(updatePaths());
 };
 
 export const adjustWeights = (newGraph) => async (dispatch) => {
   dispatch({ type: ADJUST_WEIGHTS, payload: newGraph });
+
+  dispatch(updateTables());
+  dispatch(updatePaths());
 };

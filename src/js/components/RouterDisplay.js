@@ -1,9 +1,7 @@
 import React, { useState, useEffect, useRef, Fragment } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-
 import { Line } from "react-lineto";
-
 import Router from "./Router";
 
 const useWindowSize = () => {
@@ -29,13 +27,14 @@ const useWindowSize = () => {
   return windowSize;
 };
 
-const RouterDisplay = ({ topology, settings }) => {
+const RouterDisplay = ({ topology, settings, tables }) => {
   const compRef = useRef(null);
   const winSize = useWindowSize();
 
   const [numRouters, setNumRouters] = useState(topology.size);
   const [selectedRouter, setSelectedRouter] = useState(0);
   const [linkView, setLinkView] = useState("");
+  const [paths, setPaths] = useState([]);
 
   const [arr, setArr] = useState([]);
   const [dim, setDim] = useState({
@@ -43,6 +42,9 @@ const RouterDisplay = ({ topology, settings }) => {
     width: 0,
   });
 
+  if (tables.paths) {
+    console.log("Paths:", paths);
+  }
   useEffect(() => {
     function handleResize() {
       setDim({
@@ -70,6 +72,20 @@ const RouterDisplay = ({ topology, settings }) => {
 
     setArr(newArr);
   }, [topology.size]);
+
+  useEffect(() => {
+    // TODO, HOW THE HELL DO YOU PARSE THIS SHIT!!
+    if (tables.paths) {
+      let arr = [];
+
+      for (let i = 0; i < tables.paths.length; i++) {
+        let curpath = tables.paths[selectedRouter - 1][i].split(",");
+        arr.push(curpath);
+      }
+
+      setPaths(arr);
+    }
+  }, [settings, tables]);
 
   const xCoord = (grad, scalar) =>
     Math.round(
@@ -117,6 +133,19 @@ const RouterDisplay = ({ topology, settings }) => {
         />
       ));
     } else if (linkView === "paths") {
+      return paths.map((elem) => (
+        <Line
+          zIndex={0}
+          key={elem}
+          borderColor='#df4759'
+          borderWidth={3}
+          x0={xCoord(elem[0] / arr.length, 0.7)}
+          y0={yCoord(elem[0] / arr.length, 0.7)}
+          x1={xCoord(elem[1] / arr.length, 0.7)}
+          y1={yCoord(elem[1] / arr.length, 0.7)}
+        />
+      ));
+      /*
       return arr.map((elem) => (
         <Line
           zIndex={0}
@@ -129,6 +158,7 @@ const RouterDisplay = ({ topology, settings }) => {
           y1={yCoord(elem / arr.length, 0.7)}
         />
       ));
+      */
     }
   };
 
@@ -153,12 +183,14 @@ const RouterDisplay = ({ topology, settings }) => {
 
 RouterDisplay.propTypes = {
   topology: PropTypes.object.isRequired,
+  tables: PropTypes.object.isRequired,
   settings: PropTypes.object.isRequired,
 };
 
 const stateToProps = (state) => ({
   topology: state.topology,
   settings: state.settings,
+  tables: state.tables,
 });
 
 export default connect(stateToProps, {})(RouterDisplay);

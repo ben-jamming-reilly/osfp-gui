@@ -10,16 +10,15 @@ contextBridge.exposeInMainWorld("electron", {
     },
   },
   osfpAPI: {
-    forwardingTable(data, router) {
+    forwardingTable(data) {
       const graph_str = JSON.stringify({ networkTopology: data });
-
-      console.log(graph_str);
 
       return native_ospf.getForwardingTable(String(graph_str));
     },
     leastCostPathsTable(data) {
-      console.log(data);
-      //getLeastCostPathsTable()
+      const graph_str = JSON.stringify({ networkTopology: data });
+
+      return native_ospf.getLeastCostPathsTable(graph_str);
     },
   },
 });
