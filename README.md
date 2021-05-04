@@ -12,6 +12,29 @@
   ```bash
   $ npm install
   ```
+  If you don't have ```node-gyp``` already installed globally, you should install it as well:
+  ```bash
+  $ npm install -g node-gyp
+  ```
+
+- This project uses native C++ modules exposed to Node through the Node Addon API (NAPI). Since C++ is a compiled language and is not interpreted, the native modules will have to be compiled on each fresh download. Navigate to the ```routing/``` subdirectory and run the following commands:
+
+  ```bash
+  $ cmake .
+  $ make
+  ```
+
+- Finally, compile the node module by running the following command from the root project directory:
+
+  ```bash
+  $ node-gyp rebuild
+  ```
+  The compiled node module will be placed saved as ```native_ospf.node``` under the ```build/Release``` subdirectory and can be imported into Node.js like so:
+  
+  ```javascript
+  const native_ospf = require('./build/Release/native_ospf.node');
+  //...
+  ```
 
 ### Running the project
 
@@ -37,6 +60,7 @@ You can verify that our OSPF implementation works properly by running the test s
   $ cmake .
   $ make
   ```
-Once those commands have finished, the stand-alone executable called ```ospf_test.out``` will be in the ```routing``` parent directory and can be run to verify proper functionality. There will also be a number of CMake files in ```routing``` that can be ignored. The OSPF routing protocol functions are in ```ospf.cpp``` and the test functions can be found in ```ospf_test.cpp```.
 
-To recompile the test suite after making changes, navigate to the ```routing/``` directory and run ```make``` once again. You do not have to run ```cmake``` more than once, but you may have to run CMake again if there are changes to CMakeLists.txt or CMakeLists.txt.in in a pulled commit.
+Once those commands have finished, the stand-alone executable called ```ospf_test.out``` will be in the ```routing/``` parent directory and can be run to verify proper functionality. There will also be a number of CMake files in ```routing/``` that can be ignored. The OSPF routing protocol functions are in ```ospf.cpp```, ```Router.cpp```, and ```LSDB.cpp```. The test functions can be found in ```ospf_test.cpp```. The code responsible for exposing the C++ modules as a Node.js module reside in the ```routing/native_ospf/``` subdirectory.
+
+To recompile the test suite after making changes, navigate to the ```routing/``` directory and run ```make``` once again. You do not have to run ```cmake``` more than once, even if there are changes to CMakeLists.txt, CMakeLists.txt.gtest, or CMakeLists.txt.rapidjson in a pulled commit.
