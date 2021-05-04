@@ -42,9 +42,6 @@ const RouterDisplay = ({ topology, settings, tables }) => {
     width: 0,
   });
 
-  if (tables.paths) {
-    console.log("Paths:", paths);
-  }
   useEffect(() => {
     function handleResize() {
       setDim({
@@ -71,21 +68,13 @@ const RouterDisplay = ({ topology, settings, tables }) => {
     for (let i = 1; i <= topology.size; i++) newArr.push(i);
 
     setArr(newArr);
-  }, [topology.size]);
+  }, [topology.size, topology]);
 
   useEffect(() => {
-    // TODO, HOW THE HELL DO YOU PARSE THIS SHIT!!
-    if (tables.paths) {
-      let arr = [];
+    console.log(tables.paths[selectedRouter - 1]);
 
-      for (let i = 0; i < tables.paths.length; i++) {
-        let curpath = tables.paths[selectedRouter - 1][i].split(",");
-        arr.push(curpath);
-      }
-
-      setPaths(arr);
-    }
-  }, [settings, tables]);
+    setPaths(tables.paths[selectedRouter - 1]);
+  }, [tables.paths]);
 
   const xCoord = (grad, scalar) =>
     Math.round(
@@ -133,32 +122,22 @@ const RouterDisplay = ({ topology, settings, tables }) => {
         />
       ));
     } else if (linkView === "paths") {
-      return paths.map((elem) => (
-        <Line
-          zIndex={0}
-          key={elem}
-          borderColor='#df4759'
-          borderWidth={3}
-          x0={xCoord(elem[0] / arr.length, 0.7)}
-          y0={yCoord(elem[0] / arr.length, 0.7)}
-          x1={xCoord(elem[1] / arr.length, 0.7)}
-          y1={yCoord(elem[1] / arr.length, 0.7)}
-        />
-      ));
-      /*
-      return arr.map((elem) => (
-        <Line
-          zIndex={0}
-          key={elem}
-          borderColor='#0275d8'
-          borderWidth={3}
-          x0={xCoord((Number(selectedRouter) - 1) / arr.length, 0.7)}
-          y0={yCoord((Number(selectedRouter) - 1) / arr.length, 0.7)}
-          x1={xCoord(elem / arr.length, 0.7)}
-          y1={yCoord(elem / arr.length, 0.7)}
-        />
-      ));
-      */
+      return paths.map((elem) =>
+        elem[1] != selectedRouter ? (
+          <Line
+            zIndex={0}
+            key={elem}
+            borderColor='#df4759'
+            borderWidth={3}
+            x0={xCoord((elem[0] - 1) / arr.length, 0.7)}
+            y0={yCoord((elem[0] - 1) / arr.length, 0.7)}
+            x1={xCoord((elem[1] - 1) / arr.length, 0.7)}
+            y1={yCoord((elem[1] - 1) / arr.length, 0.7)}
+          />
+        ) : (
+          ""
+        )
+      );
     }
   };
 

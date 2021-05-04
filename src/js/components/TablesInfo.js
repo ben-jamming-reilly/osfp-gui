@@ -10,13 +10,9 @@ const TablesInfo = ({ settings, tables }) => {
 
   useEffect(() => {
     const index = settings.selectedRouter;
-
-    console.log(index);
     setTablesArr(tables.tables[index]);
     setCurRouter(index);
   }, [settings, tables]);
-
-  //console.log(tablesArr);
 
   return (
     <div className='text-center'>

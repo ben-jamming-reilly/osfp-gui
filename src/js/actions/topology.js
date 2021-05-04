@@ -8,8 +8,8 @@ export const addRouter = () => async (dispatch) => {
 
   // I'm hard coding in 99 for the default weight for rn
   for (let i = 1; i <= topology.size; i++) {
-    let tuple1 = [i, new_router_id, 99];
-    let tuple2 = [new_router_id, i, 99];
+    let tuple1 = [i, new_router_id, 13];
+    let tuple2 = [new_router_id, i, 13];
 
     topology.graph.push(tuple1);
     topology.graph.push(tuple2);
@@ -39,6 +39,6 @@ export const removeRouter = () => async (dispatch) => {
 export const adjustWeights = (newGraph) => async (dispatch) => {
   dispatch({ type: ADJUST_WEIGHTS, payload: newGraph });
 
-  dispatch(updateTables());
-  dispatch(updatePaths());
+  //dispatch(updateTables());
+  //dispatch(updatePaths());
 };
