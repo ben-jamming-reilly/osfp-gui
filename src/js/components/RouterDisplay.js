@@ -71,10 +71,21 @@ const RouterDisplay = ({ topology, settings, tables }) => {
   }, [topology.size, topology]);
 
   useEffect(() => {
-    console.log(tables.paths[selectedRouter - 1]);
+    if (tables.paths[selectedRouter - 1]) {
+      let tmp_paths = [];
+      for (let i = 0; i < tables.paths[selectedRouter - 1].length; i++) {
+        let tmp_row = tables.paths[selectedRouter - 1][i];
 
-    setPaths(tables.paths[selectedRouter - 1]);
-  }, [tables.paths]);
+        if (tmp_row.length > 3) {
+          tmp_row = tmp_row.slice(tmp_row.length - 3);
+        }
+        tmp_paths.push(tmp_row);
+      }
+      setPaths(tmp_paths);
+    } else {
+      setPaths(tables.paths[selectedRouter - 1]);
+    }
+  }, [tables.paths, settings]);
 
   const xCoord = (grad, scalar) =>
     Math.round(
@@ -122,6 +133,7 @@ const RouterDisplay = ({ topology, settings, tables }) => {
         />
       ));
     } else if (linkView === "paths") {
+      console.log(paths);
       return paths.map((elem) =>
         elem[1] != selectedRouter ? (
           <Line
